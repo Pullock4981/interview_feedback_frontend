@@ -1,22 +1,31 @@
 @import "tailwindcss";
 
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #5c2d91;
+  --color-primary-hover: #4a2474;
+  --color-primary-light: #f3e8ff;
+  --color-secondary: #7b2cbf;
+  --color-sidebar: #5c2d91;
+  --color-card-bg: #ffffff;
+  --color-card-bg-dark: #1f2937;
+  --color-background-main: #f8fafc;
+  --color-background-main-dark: #111827;
+  --color-text-main: #374151;
+  --color-text-main-dark: #e5e7eb;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: var(--color-background-main);
+  --foreground: var(--color-text-main);
+  --sidebar-bg: var(--color-sidebar);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark {
+  --background: var(--color-background-main-dark);
+  --foreground: var(--color-text-main-dark);
+  --sidebar-bg: #1e1b4b; /* Darker purple for dark mode sidebar */
 }
 
 body {

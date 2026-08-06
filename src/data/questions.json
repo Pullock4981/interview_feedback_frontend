@@ -1,0 +1,117 @@
+{
+  "htmlcss": {
+    "fresher": [
+      "What is HTML and why do we use semantic tags?",
+      "What is the Box Model in CSS?",
+      "How do you center a div?",
+      "What are the differences between inline and block elements?",
+      "Explain the difference between id and class selectors."
+    ],
+    "intermediate": [
+      "Explain the CSS Flexbox model and its main properties.",
+      "How does CSS Grid differ from Flexbox?",
+      "What is CSS specificity and how is it calculated?",
+      "Explain CSS pseudo-classes and pseudo-elements.",
+      "How do you make a website responsive?"
+    ],
+    "experienced": [
+      "Explain CSS variables and how they differ from SASS variables.",
+      "What is the Shadow DOM?",
+      "How do you optimize CSS delivery for performance?",
+      "Explain the stacking context and z-index issues.",
+      "Describe how BEM (Block Element Modifier) architecture works."
+    ]
+  },
+  "jsts": {
+    "fresher": [
+      "What are the data types in JavaScript?",
+      "Difference between var, let, and const.",
+      "What is the DOM?",
+      "How do you write a basic function in JS?",
+      "What are arrays and objects?"
+    ],
+    "intermediate": [
+      "What is a closure in JavaScript? Give an example.",
+      "Explain the JavaScript Event Loop.",
+      "What are Promises and how do they differ from callbacks?",
+      "Explain the 'this' keyword.",
+      "What is event bubbling and capturing?"
+    ],
+    "experienced": [
+      "Explain the difference between interface and type in TypeScript.",
+      "What are Generics in TypeScript and when should you use them?",
+      "Explain prototypal inheritance.",
+      "What are web workers and when would you use them?",
+      "How do you handle memory leaks in JavaScript?"
+    ]
+  },
+  "reactnext": {
+    "fresher": [
+      "What is JSX?",
+      "Difference between state and props.",
+      "What is a functional component?",
+      "How do you handle events in React?",
+      "What is the useState hook?"
+    ],
+    "intermediate": [
+      "How does the Virtual DOM work in React?",
+      "Explain the useEffect hook and its dependency array.",
+      "What is Context API and when should it be used?",
+      "Explain React Router basics.",
+      "How do you manage forms in React?"
+    ],
+    "experienced": [
+      "Explain the difference between SSR, SSG, and CSR in Next.js.",
+      "What are React Server Components?",
+      "How do you optimize performance in a React application (useMemo, useCallback)?",
+      "Explain custom hooks and when to build one.",
+      "How does Next.js handle caching and revalidation?"
+    ]
+  },
+  "nodeexpress": {
+    "fresher": [
+      "What is Node.js?",
+      "What is NPM?",
+      "How do you start a basic Express server?",
+      "What is a package.json file?",
+      "Difference between GET and POST requests."
+    ],
+    "intermediate": [
+      "Explain the role of middleware in Express.js.",
+      "How do you handle errors centrally in an Express application?",
+      "What is REST API architecture?",
+      "How do you connect Node.js to a database?",
+      "What is CORS and how do you configure it in Express?"
+    ],
+    "experienced": [
+      "How does the Event Emitter work in Node.js?",
+      "What are streams in Node.js and what types are there?",
+      "Explain how JWT authentication works in a stateless API.",
+      "How do you scale a Node.js application (clustering, PM2)?",
+      "Explain the Node.js event loop in depth."
+    ]
+  },
+  "mongodb": {
+    "fresher": [
+      "What is MongoDB?",
+      "Difference between SQL and NoSQL.",
+      "What are collections and documents?",
+      "How do you insert and find data in MongoDB?",
+      "What is a primary key (_id) in MongoDB?"
+    ],
+    "intermediate": [
+      "What is Mongoose and what benefits does it provide?",
+      "How do you design schemas for 1-to-many relationships?",
+      "Explain how to update and delete documents.",
+      "What are Mongoose models and schemas?",
+      "How do you populate references in Mongoose?"
+    ],
+    "experienced": [
+      "Explain the Aggregation Framework in MongoDB.",
+      "How does indexing work and why is it important?",
+      "How do you handle many-to-many relationships efficiently?",
+      "Explain replication and sharding in MongoDB.",
+      "How do you optimize slow queries in MongoDB?"
+    ]
+  }
+}
