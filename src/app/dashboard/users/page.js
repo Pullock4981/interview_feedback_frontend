@@ -12,7 +12,7 @@ export default function UsersPage() {
 
   const fetchInstructors = async () => {
     try {
-      const res = await fetchWithAuth("http://localhost:5000/api/v1/users/instructors/stats");
+      const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/users/instructors/stats`);
       const data = await res.json();
       if (data.success) {
         setInstructors(data.data);
@@ -48,7 +48,7 @@ export default function UsersPage() {
 
     if (result.isConfirmed) {
       try {
-        const res = await fetchWithAuth(`http://localhost:5000/api/v1/users/${id}/${action}`, {
+        const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/users/${id}/${action}`, {
           method: "PATCH",
         });
         const data = await res.json();

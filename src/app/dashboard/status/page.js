@@ -13,7 +13,7 @@ export default function StatusList() {
   useEffect(() => {
     const fetchInterviews = async () => {
       try {
-        const res = await fetchWithAuth("http://localhost:5000/api/v1/interviews?status=Completed");
+        const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/interviews?status=Completed`);
         const data = await res.json();
         if (data.success) {
           setInterviews(data.data);

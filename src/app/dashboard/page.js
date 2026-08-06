@@ -42,9 +42,9 @@ function ManagerDashboard() {
     setLoading(true);
     try {
       const [mgrRes, techRes, actRes] = await Promise.all([
-        fetchWithAuth("http://localhost:5000/api/v1/dashboard/manager"),
-        fetchWithAuth("http://localhost:5000/api/v1/dashboard/technology-performance"),
-        fetchWithAuth("http://localhost:5000/api/v1/dashboard/instructor-activity")
+        fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/dashboard/manager`),
+        fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/dashboard/technology-performance`),
+        fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/dashboard/instructor-activity`)
       ]);
       const mgrJson = await mgrRes.json();
       const techJson = await techRes.json();
@@ -222,7 +222,7 @@ function InstructorDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetchWithAuth("http://localhost:5000/api/v1/dashboard/instructor");
+        const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/dashboard/instructor`);
         const json = await res.json();
         if (json.success) {
           setData(json.data);

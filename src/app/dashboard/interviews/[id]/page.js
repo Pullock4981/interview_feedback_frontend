@@ -68,13 +68,13 @@ export default function InterviewFeedback() {
     
     const fetchInterviewDetails = async () => {
       try {
-        const res = await fetchWithAuth(`http://localhost:5000/api/v1/interviews/${interviewId}`);
+        const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/interviews/${interviewId}`);
         const data = await res.json();
         if (data.success) {
           setStudentInfo(data.data.student);
           
           // Fetch existing feedback
-          const fbRes = await fetchWithAuth(`http://localhost:5000/api/v1/feedback/${interviewId}`);
+          const fbRes = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/feedback/${interviewId}`);
           const fbData = await fbRes.json();
           
           if (fbData.success && fbData.data.feedback) {
@@ -158,7 +158,7 @@ export default function InterviewFeedback() {
   const handleSaveDraft = async () => {
     try {
       const payload = buildPayload();
-      const res = await fetchWithAuth(`http://localhost:5000/api/v1/feedback/${interviewId}/draft`, {
+      const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/feedback/${interviewId}/draft`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -247,7 +247,7 @@ export default function InterviewFeedback() {
       if (result.isConfirmed) {
         try {
           const payload = buildPayload();
-          const res = await fetchWithAuth(`http://localhost:5000/api/v1/feedback/${interviewId}/submit`, {
+          const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/feedback/${interviewId}/submit`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)

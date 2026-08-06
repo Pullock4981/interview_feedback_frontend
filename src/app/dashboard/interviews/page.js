@@ -17,7 +17,7 @@ export default function InterviewsList() {
   useEffect(() => {
     const fetchInterviews = async () => {
       try {
-        const res = await fetchWithAuth("http://localhost:5000/api/v1/interviews?pageSize=1000");
+        const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/interviews?pageSize=1000`);
         const data = await res.json();
         if (data.success) {
           setInterviews(data.data);
@@ -37,7 +37,7 @@ export default function InterviewsList() {
     }
 
     try {
-      const res = await fetchWithAuth(`http://localhost:5000/api/v1/interviews/${studentId}/start`, {
+      const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/interviews/${studentId}/start`, {
         method: "POST"
       });
       const data = await res.json();

@@ -24,8 +24,8 @@ export default function ViewFeedback() {
     const fetchData = async () => {
       try {
         const [feedbackRes, interviewRes] = await Promise.all([
-          fetchWithAuth(`http://localhost:5000/api/v1/feedback/${interviewId}`),
-          fetchWithAuth(`http://localhost:5000/api/v1/interviews/${interviewId}`)
+          fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/feedback/${interviewId}`),
+          fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/interviews/${interviewId}`)
         ]);
         
         const fData = await feedbackRes.json();

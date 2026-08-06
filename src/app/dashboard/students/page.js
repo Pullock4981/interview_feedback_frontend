@@ -32,7 +32,7 @@ export default function StudentsPage() {
   useEffect(() => {
     const fetchInterviews = async () => {
       try {
-        const res = await fetchWithAuth("http://localhost:5000/api/v1/interviews?pageSize=1000");
+        const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/interviews?pageSize=1000`);
         const data = await res.json();
         if (data.success) {
           setInterviews(data.data);
@@ -132,7 +132,7 @@ export default function StudentsPage() {
 
                   if (rows.length === 0) return reject(new Error("No valid rows found"));
 
-                  const importRes = await fetchWithAuth("http://localhost:5000/api/v1/students/import", {
+                  const importRes = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/students/import`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ sourceSheetId: 'web-upload', rows })
@@ -164,7 +164,7 @@ export default function StudentsPage() {
         );
         // Refresh the list
         setLoading(true);
-        fetchWithAuth("http://localhost:5000/api/v1/interviews")
+        fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/interviews`)
           .then(res => res.json())
           .then(data => {
             if (data.success) setInterviews(data.data);
@@ -181,7 +181,7 @@ export default function StudentsPage() {
     }
 
     try {
-      const res = await fetchWithAuth(`http://localhost:5000/api/v1/interviews/${studentId}/start`, {
+      const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/interviews/${studentId}/start`, {
         method: "POST"
       });
       const data = await res.json();

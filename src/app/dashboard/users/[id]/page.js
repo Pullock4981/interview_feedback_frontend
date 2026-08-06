@@ -16,7 +16,7 @@ export default function InstructorDetailsPage({ params }) {
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const res = await fetchWithAuth(`http://localhost:5000/api/v1/users/instructors/${id}/interviews`);
+        const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/users/instructors/${id}/interviews`);
         const data = await res.json();
         if (data.success) {
           setInstructor(data.data);
