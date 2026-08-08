@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Shield } from "lucide-react";
+import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 import Swal from "sweetalert2";
 
@@ -42,11 +43,15 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
       <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
         <div className="bg-primary p-8 flex flex-col items-center justify-center text-white">
-          <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4 backdrop-blur-sm">
-            <Shield className="w-8 h-8" />
-          </div>
-          <h1 className="text-2xl font-bold">IFMS Portal</h1>
-          <p className="text-white/80 text-sm mt-2">Interview Feedback Management</p>
+          <Image 
+            src="/assats/Screenshot%202026-08-08%20235637.png" 
+            alt="EvaLens Logo" 
+            width={80} 
+            height={80} 
+            className="mb-4 object-contain drop-shadow-md rounded-2xl" 
+          />
+          <h1 className="text-3xl font-bold">EvaLens</h1>
+          <p className="text-white/80 text-sm mt-2">Interview Evaluation System</p>
         </div>
         
         <div className="p-8">

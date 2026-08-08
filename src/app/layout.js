@@ -15,8 +15,8 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata = {
-  title: "IFMS Dashboard",
-  description: "Interview Feedback Management System",
+  title: "EvaLens Dashboard",
+  description: "Interview Evaluation System",
 };
 
 export default function RootLayout({ children }) {

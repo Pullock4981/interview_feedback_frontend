@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -37,10 +38,15 @@ export function Sidebar() {
   return (
     <aside className="w-64 bg-sidebar text-white flex flex-col h-full transition-colors duration-300">
       {/* Logo Area */}
-      <div className="h-20 flex items-center justify-center border-b border-white/10">
-        <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-          <Shield className="text-white w-6 h-6" />
-        </div>
+      <div className="py-6 flex flex-col items-center justify-center border-b border-white/10">
+        <Image 
+          src="/assats/Screenshot%202026-08-08%20235637.png" 
+          alt="EvaLens Logo" 
+          width={64} 
+          height={64} 
+          className="mb-3 object-contain drop-shadow-md rounded-xl" 
+        />
+        <span className="text-xl font-bold tracking-wide">EvaLens</span>
       </div>
 
       {/* Navigation */}
