@@ -103,10 +103,14 @@ export default function StudentsPage() {
         try {
           // Try to extract the Sheet ID from a standard Google Sheets URL
           const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+          const gidMatch = url.match(/[#&?]gid=([0-9]+)/);
           let fetchUrl = url;
           if (match && match[1]) {
             // Convert standard URL to CSV export URL
             fetchUrl = `https://docs.google.com/spreadsheets/d/${match[1]}/export?format=csv`;
+            if (gidMatch && gidMatch[1]) {
+              fetchUrl += `&gid=${gidMatch[1]}`;
+            }
           }
 
           const response = await fetch(fetchUrl);
