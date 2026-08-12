@@ -69,7 +69,7 @@ function ManagerDashboard() {
   }
 
   const statusDist = data?.statusDistribution || {};
-  const recs = data?.recommendationBreakdown || { "Strong Hire": 0, "Hire": 0, "Maybe": 0, "Reject": 0 };
+  const recs = data?.recommendationBreakdown || { 'Strongly Recommended (Potential Candidate)': 0, 'Recommended': 0, 'Need Improvement': 0, 'Not Recommended': 0 };
   
   // Calculations for UI
   const pendingCount = statusDist['Pending'] || 0;
@@ -135,10 +135,10 @@ function ManagerDashboard() {
             </span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <MiniStat title="Strong Hire" value={recs["Strong Hire"] || 0} icon={<TrendingUp className="w-5 h-5 text-green-500" />} />
-            <MiniStat title="Hire" value={recs["Hire"] || 0} icon={<UserCheck className="w-5 h-5 text-blue-500" />} />
-            <MiniStat title="Maybe" value={recs["Maybe"] || 0} icon={<AlertTriangle className="w-5 h-5 text-orange-500" />} />
-            <MiniStat title="Reject" value={recs["Reject"] || 0} icon={<Clock className="w-5 h-5 text-red-500" />} />
+            <MiniStat title='Strongly Recommended (Potential Candidate)' value={recs['Strongly Recommended (Potential Candidate)'] || 0} icon={<TrendingUp className="w-5 h-5 text-green-500" />} />
+            <MiniStat title='Recommended' value={recs['Recommended'] || 0} icon={<UserCheck className="w-5 h-5 text-blue-500" />} />
+            <MiniStat title='Need Improvement' value={recs['Need Improvement'] || 0} icon={<AlertTriangle className="w-5 h-5 text-orange-500" />} />
+            <MiniStat title='Not Recommended' value={recs['Not Recommended'] || 0} icon={<Clock className="w-5 h-5 text-red-500" />} />
           </div>
         </div>
 
@@ -240,7 +240,7 @@ function InstructorDashboard() {
     return <div className="p-8 text-center text-gray-500">Loading your dashboard...</div>;
   }
 
-  const recs = data?.recommendationBreakdown || { "Strong Hire": 0, "Hire": 0, "Maybe": 0, "Reject": 0 };
+  const recs = data?.recommendationBreakdown || { 'Strongly Recommended (Potential Candidate)': 0, 'Recommended': 0, 'Need Improvement': 0, 'Not Recommended': 0 };
   const recent = data?.recentActivity || [];
 
   return (
@@ -300,10 +300,10 @@ function InstructorDashboard() {
           <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">My Recommendations</h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Your historical recommendation distribution.</p>
           <div className="grid grid-cols-2 gap-4">
-            <MiniStat title="Strong Hire" value={recs["Strong Hire"] || 0} icon={<TrendingUp className="w-5 h-5 text-green-500" />} />
-            <MiniStat title="Hire" value={recs["Hire"] || 0} icon={<UserCheck className="w-5 h-5 text-blue-500" />} />
-            <MiniStat title="Maybe" value={recs["Maybe"] || 0} icon={<AlertTriangle className="w-5 h-5 text-orange-500" />} />
-            <MiniStat title="Reject" value={recs["Reject"] || 0} icon={<Clock className="w-5 h-5 text-red-500" />} />
+            <MiniStat title='Strongly Recommended (Potential Candidate)' value={recs['Strongly Recommended (Potential Candidate)'] || 0} icon={<TrendingUp className="w-5 h-5 text-green-500" />} />
+            <MiniStat title='Recommended' value={recs['Recommended'] || 0} icon={<UserCheck className="w-5 h-5 text-blue-500" />} />
+            <MiniStat title='Need Improvement' value={recs['Need Improvement'] || 0} icon={<AlertTriangle className="w-5 h-5 text-orange-500" />} />
+            <MiniStat title='Not Recommended' value={recs['Not Recommended'] || 0} icon={<Clock className="w-5 h-5 text-red-500" />} />
           </div>
         </div>
 

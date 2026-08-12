@@ -73,25 +73,25 @@ export default function ViewFeedback() {
           
           {/* Highlighted Final Recommendation */}
           <div className={`p-4 rounded-xl border shadow-sm flex flex-col gap-3 ${
-            feedback.finalRecommendation === 'Strong Hire' ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800' :
-            feedback.finalRecommendation === 'Hire' ? 'bg-primary/5 border-primary/20 dark:bg-primary/10 dark:border-primary/30' :
-            feedback.finalRecommendation === 'Maybe' ? 'bg-orange-50 border-orange-200 dark:bg-orange-900/20 dark:border-orange-800' :
-            feedback.finalRecommendation === 'Reject' ? 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800' : 
+            feedback.finalRecommendation === 'Strongly Recommended (Potential Candidate)' ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800' :
+            feedback.finalRecommendation === 'Recommended' ? 'bg-primary/5 border-primary/20 dark:bg-primary/10 dark:border-primary/30' :
+            feedback.finalRecommendation === 'Need Improvement' ? 'bg-orange-50 border-orange-200 dark:bg-orange-900/20 dark:border-orange-800' :
+            feedback.finalRecommendation === 'Not Recommended' ? 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800' : 
             'bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-gray-700'
           }`}>
             <div>
               <h2 className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${
-                feedback.finalRecommendation === 'Strong Hire' ? 'text-green-800 dark:text-green-400' :
-                feedback.finalRecommendation === 'Hire' ? 'text-primary dark:text-primary-light' :
-                feedback.finalRecommendation === 'Maybe' ? 'text-orange-800 dark:text-orange-400' :
-                feedback.finalRecommendation === 'Reject' ? 'text-red-800 dark:text-red-400' : 
+                feedback.finalRecommendation === 'Strongly Recommended (Potential Candidate)' ? 'text-green-800 dark:text-green-400' :
+                feedback.finalRecommendation === 'Recommended' ? 'text-primary dark:text-primary-light' :
+                feedback.finalRecommendation === 'Need Improvement' ? 'text-orange-800 dark:text-orange-400' :
+                feedback.finalRecommendation === 'Not Recommended' ? 'text-red-800 dark:text-red-400' : 
                 'text-gray-500 dark:text-gray-400'
               }`}>Final Recommendation</h2>
               <div className={`text-2xl font-extrabold ${
-                feedback.finalRecommendation === 'Strong Hire' ? 'text-green-900 dark:text-green-300' :
-                feedback.finalRecommendation === 'Hire' ? 'text-primary-hover dark:text-primary-light' :
-                feedback.finalRecommendation === 'Maybe' ? 'text-orange-900 dark:text-orange-300' :
-                feedback.finalRecommendation === 'Reject' ? 'text-red-900 dark:text-red-300' : 
+                feedback.finalRecommendation === 'Strongly Recommended (Potential Candidate)' ? 'text-green-900 dark:text-green-300' :
+                feedback.finalRecommendation === 'Recommended' ? 'text-primary-hover dark:text-primary-light' :
+                feedback.finalRecommendation === 'Need Improvement' ? 'text-orange-900 dark:text-orange-300' :
+                feedback.finalRecommendation === 'Not Recommended' ? 'text-red-900 dark:text-red-300' : 
                 'text-gray-900 dark:text-gray-100'
               }`}>{feedback.finalRecommendation || "Not Decided"}</div>
             </div>

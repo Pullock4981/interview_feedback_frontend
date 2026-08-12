@@ -514,10 +514,10 @@ export default function StudentsPage() {
                                     <span className="font-semibold text-gray-500">Final Rec.:</span>
                                     <div className="flex flex-col">
                                       <span className={`font-bold ${
-                                        intv.feedback.finalRecommendation === 'Strong Hire' ? 'text-green-600' :
-                                        intv.feedback.finalRecommendation === 'Hire' ? 'text-primary' :
-                                        intv.feedback.finalRecommendation === 'Maybe' ? 'text-orange-500' :
-                                        intv.feedback.finalRecommendation === 'Reject' ? 'text-red-500' : ''
+                                        intv.feedback.finalRecommendation === 'Strongly Recommended (Potential Candidate)' ? 'text-green-600' :
+                                        intv.feedback.finalRecommendation === 'Recommended' ? 'text-primary' :
+                                        intv.feedback.finalRecommendation === 'Need Improvement' ? 'text-orange-500' :
+                                        intv.feedback.finalRecommendation === 'Not Recommended' ? 'text-red-500' : ''
                                       }`}>{intv.feedback.finalRecommendation || 'N/A'}</span>
                                       {intv.feedback.finalComment && (
                                         <span className="text-[10px] italic text-gray-400 mt-1 line-clamp-2" title={intv.feedback.finalComment}>&quot;{intv.feedback.finalComment}&quot;</span>

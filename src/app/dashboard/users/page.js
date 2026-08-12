@@ -184,26 +184,26 @@ export default function UsersPage() {
                     </td>
                     <td className="px-6 py-4 text-center">
                       <div className="flex justify-center gap-2">
-                        <div className="flex flex-col items-center" title="Strong Hire">
-                          <span className="text-[10px] uppercase font-bold text-gray-400 mb-0.5">SH</span>
+                        <div className="flex flex-col items-center" title='Strongly Recommended (Potential Candidate)'>
+                          <span className="text-[10px] uppercase font-bold text-gray-400 mb-0.5">SR</span>
                           <span className="w-7 h-7 rounded-full bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 flex items-center justify-center font-bold text-xs shadow-sm">
                             {inst.strongHireCount || 0}
                           </span>
                         </div>
-                        <div className="flex flex-col items-center" title="Hire">
-                          <span className="text-[10px] uppercase font-bold text-gray-400 mb-0.5">H</span>
+                        <div className="flex flex-col items-center" title='Recommended'>
+                          <span className="text-[10px] uppercase font-bold text-gray-400 mb-0.5">R</span>
                           <span className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shadow-sm">
                             {inst.hireCount || 0}
                           </span>
                         </div>
-                        <div className="flex flex-col items-center" title="Maybe">
-                          <span className="text-[10px] uppercase font-bold text-gray-400 mb-0.5">M</span>
+                        <div className="flex flex-col items-center" title='Need Improvement'>
+                          <span className="text-[10px] uppercase font-bold text-gray-400 mb-0.5">NI</span>
                           <span className="w-7 h-7 rounded-full bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400 flex items-center justify-center font-bold text-xs shadow-sm">
                             {inst.maybeCount || 0}
                           </span>
                         </div>
-                        <div className="flex flex-col items-center" title="Reject">
-                          <span className="text-[10px] uppercase font-bold text-gray-400 mb-0.5">R</span>
+                        <div className="flex flex-col items-center" title='Not Recommended'>
+                          <span className="text-[10px] uppercase font-bold text-gray-400 mb-0.5">NR</span>
                           <span className="w-7 h-7 rounded-full bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400 flex items-center justify-center font-bold text-xs shadow-sm">
                             {inst.rejectCount || 0}
                           </span>

@@ -65,14 +65,14 @@ export default function InstructorDetailsPage({ params }) {
 
   const getRecommendationBadge = (rec) => {
     switch (rec) {
-      case "Strong Hire":
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-200">Strong Hire</span>;
-      case "Hire":
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">Hire</span>;
-      case "Maybe":
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-800 border border-orange-200">Maybe</span>;
-      case "Reject":
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200">Reject</span>;
+      case 'Strongly Recommended (Potential Candidate)':
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-200">Strongly Recommended</span>;
+      case 'Recommended':
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">Recommended</span>;
+      case 'Need Improvement':
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-800 border border-orange-200">Need Improvement</span>;
+      case 'Not Recommended':
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200">Not Recommended</span>;
       default:
         return <span className="text-gray-400 text-xs italic">N/A</span>;
     }

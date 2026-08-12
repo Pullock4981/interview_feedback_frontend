@@ -456,25 +456,25 @@ export default function InterviewFeedback() {
             
             {/* Highlighted Final Recommendation */}
             <div className={`p-4 rounded-xl border shadow-sm flex flex-col gap-3 ${
-              finalRecommendation === 'Strong Hire' ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800' :
-              finalRecommendation === 'Hire' ? 'bg-primary/5 border-primary/20 dark:bg-primary/10 dark:border-primary/30' :
-              finalRecommendation === 'Maybe' ? 'bg-orange-50 border-orange-200 dark:bg-orange-900/20 dark:border-orange-800' :
-              finalRecommendation === 'Reject' ? 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800' : 
+              finalRecommendation === 'Strongly Recommended (Potential Candidate)' ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800' :
+              finalRecommendation === 'Recommended' ? 'bg-primary/5 border-primary/20 dark:bg-primary/10 dark:border-primary/30' :
+              finalRecommendation === 'Need Improvement' ? 'bg-orange-50 border-orange-200 dark:bg-orange-900/20 dark:border-orange-800' :
+              finalRecommendation === 'Not Recommended' ? 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800' : 
               'bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-gray-700'
             }`}>
               <div>
                 <h2 className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${
-                  finalRecommendation === 'Strong Hire' ? 'text-green-800 dark:text-green-400' :
-                  finalRecommendation === 'Hire' ? 'text-primary dark:text-primary-light' :
-                  finalRecommendation === 'Maybe' ? 'text-orange-800 dark:text-orange-400' :
-                  finalRecommendation === 'Reject' ? 'text-red-800 dark:text-red-400' : 
+                  finalRecommendation === 'Strongly Recommended (Potential Candidate)' ? 'text-green-800 dark:text-green-400' :
+                  finalRecommendation === 'Recommended' ? 'text-primary dark:text-primary-light' :
+                  finalRecommendation === 'Need Improvement' ? 'text-orange-800 dark:text-orange-400' :
+                  finalRecommendation === 'Not Recommended' ? 'text-red-800 dark:text-red-400' : 
                   'text-gray-500 dark:text-gray-400'
                 }`}>Final Recommendation</h2>
                 <div className={`text-2xl font-extrabold ${
-                  finalRecommendation === 'Strong Hire' ? 'text-green-900 dark:text-green-300' :
-                  finalRecommendation === 'Hire' ? 'text-primary-hover dark:text-primary-light' :
-                  finalRecommendation === 'Maybe' ? 'text-orange-900 dark:text-orange-300' :
-                  finalRecommendation === 'Reject' ? 'text-red-900 dark:text-red-300' : 
+                  finalRecommendation === 'Strongly Recommended (Potential Candidate)' ? 'text-green-900 dark:text-green-300' :
+                  finalRecommendation === 'Recommended' ? 'text-primary-hover dark:text-primary-light' :
+                  finalRecommendation === 'Need Improvement' ? 'text-orange-900 dark:text-orange-300' :
+                  finalRecommendation === 'Not Recommended' ? 'text-red-900 dark:text-red-300' : 
                   'text-gray-900 dark:text-gray-100'
                 }`}>{finalRecommendation || "Not Decided"}</div>
               </div>
@@ -748,20 +748,20 @@ export default function InterviewFeedback() {
             <h2 className="text-sm font-bold text-primary mb-3 border-b pb-1">Final Recommendation</h2>
             <div className="grid grid-cols-2 gap-2 mb-3">
               <label className="flex items-center justify-center p-2 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                <input type="radio" name="rec" value="Strong Hire" checked={finalRecommendation === 'Strong Hire'} onChange={(e) => setFinalRecommendation(e.target.value)} className="mr-2 text-green-600" />
-                <span className="font-bold text-xs">Strong Hire</span>
+                <input type="radio" name="rec" value='Strongly Recommended (Potential Candidate)' checked={finalRecommendation === 'Strongly Recommended (Potential Candidate)'} onChange={(e) => setFinalRecommendation(e.target.value)} className="mr-2 text-green-600" />
+                <span className="font-bold text-xs">Strongly Recommended (Potential Candidate)</span>
               </label>
               <label className="flex items-center justify-center p-2 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                <input type="radio" name="rec" value="Hire" checked={finalRecommendation === 'Hire'} onChange={(e) => setFinalRecommendation(e.target.value)} className="mr-2 text-primary" />
-                <span className="font-bold text-xs">Hire</span>
+                <input type="radio" name="rec" value='Recommended' checked={finalRecommendation === 'Recommended'} onChange={(e) => setFinalRecommendation(e.target.value)} className="mr-2 text-primary" />
+                <span className="font-bold text-xs">Recommended</span>
               </label>
               <label className="flex items-center justify-center p-2 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                <input type="radio" name="rec" value="Maybe" checked={finalRecommendation === 'Maybe'} onChange={(e) => setFinalRecommendation(e.target.value)} className="mr-2 text-orange-500" />
-                <span className="font-bold text-xs">Maybe</span>
+                <input type="radio" name="rec" value='Need Improvement' checked={finalRecommendation === 'Need Improvement'} onChange={(e) => setFinalRecommendation(e.target.value)} className="mr-2 text-orange-500" />
+                <span className="font-bold text-xs">Need Improvement</span>
               </label>
               <label className="flex items-center justify-center p-2 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                <input type="radio" name="rec" value="Reject" checked={finalRecommendation === 'Reject'} onChange={(e) => setFinalRecommendation(e.target.value)} className="mr-2 text-red-500" />
-                <span className="font-bold text-xs">Reject</span>
+                <input type="radio" name="rec" value='Not Recommended' checked={finalRecommendation === 'Not Recommended'} onChange={(e) => setFinalRecommendation(e.target.value)} className="mr-2 text-red-500" />
+                <span className="font-bold text-xs">Not Recommended</span>
               </label>
             </div>
             <textarea value={finalComment} onChange={(e) => setFinalComment(e.target.value)} placeholder="Final overall comments..." className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 text-sm flex-1 min-h-[60px] resize-none focus:ring-2 focus:ring-primary focus:outline-none"></textarea>
