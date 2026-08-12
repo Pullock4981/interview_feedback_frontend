@@ -175,9 +175,12 @@ export default function StudentsPage() {
                       return null;
                     };
                     
-                    const name = getVal(['name', 'student name', 'candidate name']) || 'Unknown';
-                    const email = getVal(['email', 'e-mail', 'email address']);
-                    const phone = getVal(['phone', 'phone number', 'contact', 'mobile']) || '';
+                    const name = getVal(['name', 'student name', 'candidate name', 'first name', 'full name']) || 'Unknown Candidate';
+                    let email = getVal(['email', 'e-mail', 'email address', 'mail']);
+                    if (!email) {
+                      email = `no-email-${Math.random().toString(36).substring(2,10)}@placeholder.com`;
+                    }
+                    const phone = getVal(['phone', 'phone number', 'contact', 'mobile', 'cell']) || '';
                     const course = courseStr || getVal(['course', 'programme']) || '';
                     const batch = batchStr || getVal(['batch']) || '';
                     const slot = getVal(['slot', 'time slot', 'interview slot']) || '';
@@ -200,7 +203,7 @@ export default function StudentsPage() {
                     });
                     
                     return normalizedRow;
-                  }).filter(r => r.email);
+                  });
 
                   if (rows.length === 0) return reject(new Error("No valid rows found after parsing."));
 
