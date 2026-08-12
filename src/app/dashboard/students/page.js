@@ -128,12 +128,12 @@ export default function StudentsPage() {
                   const rawRows = results.data;
                   if (!rawRows || rawRows.length === 0) throw new Error("No valid data found in the file.");
 
-                  // 1. Find the header row (scan first 10 rows for 'email')
+                  // 1. Find the header row (scan first 10 rows for 'email' or 'name' as substring)
                   let headerIndex = 0;
                   let headers = [];
                   for (let i = 0; i < Math.min(10, rawRows.length); i++) {
                     const row = rawRows[i];
-                    if (row.some(cell => typeof cell === 'string' && ['email', 'e-mail'].includes(cell.toLowerCase().trim()))) {
+                    if (row.some(cell => typeof cell === 'string' && (cell.toLowerCase().includes('email') || cell.toLowerCase().includes('name')))) {
                       headerIndex = i;
                       headers = row.map(c => typeof c === 'string' ? c.trim() : `Column_${Math.random()}`);
                       break;
@@ -165,25 +165,26 @@ export default function StudentsPage() {
                   const standardKeysLower = ['name', 'student name', 'candidate name', 'email', 'e-mail', 'email address', 'phone', 'phone number', 'contact', 'mobile', 'course', 'programme', 'batch', 'slot', 'time slot', 'interview slot'];
                   
                   const rows = objectRows.map(row => {
-                    const getVal = (possibleKeys) => {
+                    const getVal = (possibleSubstrings) => {
                       const rowKeys = Object.keys(row);
                       for (const k of rowKeys) {
-                        if (possibleKeys.includes(k.toLowerCase().trim())) {
+                        const lowerKey = k.toLowerCase().trim();
+                        if (possibleSubstrings.some(sub => lowerKey.includes(sub))) {
                           return row[k];
                         }
                       }
                       return null;
                     };
                     
-                    const name = getVal(['name', 'student name', 'candidate name', 'first name', 'full name']) || 'Unknown Candidate';
-                    let email = getVal(['email', 'e-mail', 'email address', 'mail']);
+                    const name = getVal(['name']) || 'Unknown Candidate';
+                    let email = getVal(['email', 'e-mail', 'mail']);
                     if (!email) {
                       email = `no-email-${Math.random().toString(36).substring(2,10)}@placeholder.com`;
                     }
-                    const phone = getVal(['phone', 'phone number', 'contact', 'mobile', 'cell']) || '';
+                    const phone = getVal(['phone', 'contact', 'mobile', 'cell']) || '';
                     const course = courseStr || getVal(['course', 'programme']) || '';
                     const batch = batchStr || getVal(['batch']) || '';
-                    const slot = getVal(['slot', 'time slot', 'interview slot']) || '';
+                    const slot = getVal(['slot', 'time']) || '';
                     
                     const normalizedRow = {
                       name,
@@ -196,8 +197,10 @@ export default function StudentsPage() {
                       metadata: {}
                     };
                     
+                    const standardKeysSubstrings = ['name', 'email', 'e-mail', 'mail', 'phone', 'contact', 'mobile', 'cell', 'course', 'programme', 'batch', 'slot', 'time'];
                     Object.keys(row).forEach(key => {
-                      if (key && !standardKeysLower.includes(key.toLowerCase().trim()) && row[key] !== undefined && row[key] !== null && row[key] !== '') {
+                      const lowerKey = key.toLowerCase().trim();
+                      if (key && !standardKeysSubstrings.some(sub => lowerKey.includes(sub)) && row[key] !== undefined && row[key] !== null && row[key] !== '') {
                         normalizedRow.metadata[key.trim()] = row[key];
                       }
                     });
