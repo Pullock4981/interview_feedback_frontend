@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
 import { fetchWithAuth } from "@/utils/api";
-import { Upload, Search, Filter, CheckCircle2, ChevronDown, ChevronUp, Trash2, Settings, Download } from "lucide-react";
+import { Upload, Search, Filter, CheckCircle2, ChevronDown, ChevronUp, Trash2, Settings, Download, Copy } from "lucide-react";
 import Swal from "sweetalert2";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -342,30 +342,95 @@ export default function StudentsPage() {
     }
   };
 
+  const getFormattedRows = (progName) => {
+    if (!groupedInterviews[progName]) return { headers: [], rows: [] };
+    
+    const headers = [
+      'Student Name', 'Email', 'Phone', 'Course', 'Slot', 'Status', 
+      'Interpersonal Skills', 'Language Proficiency', 'Camera & Environment',
+      'Technical (Solved)', 'Technical (Partially Solved)', "Technical (Can't Solve)",
+      'Problem Solving', 'Final Recommendation', 'Final Comment'
+    ];
+    
+    const rows = groupedInterviews[progName].map(intv => {
+      const fb = intv.feedback || {};
+      
+      // Formatting Language
+      let languageStr = '';
+      if (fb.bengaliLevel) languageStr += `Bengali: ${fb.bengaliLevel} ${fb.bengaliComment ? '('+fb.bengaliComment+')' : ''} | `;
+      if (fb.englishLevel) languageStr += `English: ${fb.englishLevel} ${fb.englishComment ? '('+fb.englishComment+')' : ''}`;
+      
+      // Formatting Camera
+      let cameraStr = fb.cameraOn ? `On (Eye: ${fb.eyeContact || 'N/A'}, BG: ${fb.backgroundLevel || 'N/A'})` : 'Off';
+      if (fb.cameraComment) cameraStr += ` - ${fb.cameraComment}`;
+      
+      // Formatting Technical
+      const solved = [];
+      const partial = [];
+      const cant = [];
+      
+      if (fb.technicalEvaluation && typeof fb.technicalEvaluation === 'object') {
+        Object.entries(fb.technicalEvaluation).forEach(([catKey, catData]) => {
+          if (catData.topics && Array.isArray(catData.topics)) {
+            catData.topics.forEach(t => {
+              const itemStr = `[${catKey.toUpperCase()}] ${t.name}`;
+              if (t.status === 'solved') solved.push(itemStr);
+              else if (t.status === 'partially_solved') partial.push(itemStr);
+              else if (t.status === 'cant_solve') cant.push(itemStr);
+            });
+          }
+        });
+      }
+      
+      return [
+        intv.student?.name || '',
+        intv.student?.email || '',
+        intv.student?.phone || 'N/A',
+        progName,
+        intv.student?.slot || intv.batch || intv.student?.batch || 'N/A',
+        intv.status || '',
+        `${fb.interpersonalLevel || 'N/A'} ${fb.interpersonalComment ? '- ' + fb.interpersonalComment : ''}`,
+        languageStr.replace(/ \| $/, ''),
+        cameraStr,
+        solved.join('\n'),
+        partial.join('\n'),
+        cant.join('\n'),
+        `${(fb.problemSolvingLevel || '').replace('_', ' ')} ${fb.problemSolvingComment ? '- ' + fb.problemSolvingComment : ''}`,
+        fb.finalRecommendation || '',
+        fb.finalComment || ''
+      ];
+    });
+
+    return { headers, rows };
+  };
+
   const handleDownloadSheet = (progName) => {
-    if (!groupedInterviews[progName]) return;
+    const { headers, rows } = getFormattedRows(progName);
+    if (!headers.length) return;
     
-    const dataToExport = groupedInterviews[progName].map(intv => ({
-      Name: intv.student?.name || '',
-      Email: intv.student?.email || '',
-      Phone: intv.student?.phone || 'N/A',
-      Course: progName,
-      Slot: intv.student?.slot || intv.batch || intv.student?.batch || 'N/A',
-      Status: intv.status,
-      "Final Recommendation": intv.feedback?.finalRecommendation || 'N/A',
-      "Problem Solving": intv.feedback?.problemSolvingLevel ? intv.feedback.problemSolvingLevel.replace("_", " ") : 'N/A',
-      "Interpersonal": intv.feedback?.interpersonalLevel || 'N/A'
-    }));
-    
-    const csv = Papa.unparse(dataToExport);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const csvContent = [headers.join(','), ...rows.map(r => r.map(field => `"${(field || '').toString().replace(/"/g, '""')}"`).join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `${progName}_students.csv`);
+    link.setAttribute("download", `${progName}_students_feedback.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleCopyForGoogleSheet = (progName) => {
+    const { headers, rows } = getFormattedRows(progName);
+    if (!headers.length) return;
+    
+    // Create TSV for clipboard
+    const tsvContent = [headers.join('\t'), ...rows.map(r => r.map(c => (c || '').toString().replace(/\n/g, ' ')).join('\t'))].join('\n');
+
+    navigator.clipboard.writeText(tsvContent).then(() => {
+      Swal.fire('Copied!', 'Data copied to clipboard. You can now paste it directly into an empty Google Sheet.', 'success');
+    }).catch(err => {
+      Swal.fire('Error', 'Failed to copy data. Please try downloading instead.', 'error');
+    });
   };
 
   return (
@@ -442,8 +507,16 @@ export default function StudentsPage() {
                         <span>Template</span>
                       </button>
                       <button
+                        onClick={() => handleCopyForGoogleSheet(activeProgramme)}
+                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                        title={`Copy ${activeProgramme} data for Google Sheet`}
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                        <span>Copy for Google Sheet</span>
+                      </button>
+                      <button
                         onClick={() => handleDownloadSheet(activeProgramme)}
-                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-green-50 text-green-600 hover:bg-green-600 hover:text-white rounded-lg text-xs font-bold transition-colors"
+                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-green-50 text-green-600 hover:bg-green-600 hover:text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
                         title={`Download ${activeProgramme} as CSV`}
                       >
                         <Download className="w-3.5 h-3.5" />
