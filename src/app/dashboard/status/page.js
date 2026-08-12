@@ -32,28 +32,95 @@ export default function StatusList() {
       return Swal.fire('No Data', 'There are no completed interviews to export.', 'info');
     }
 
-    const headers = ['Student Name', 'Email', 'Course', 'Status', 'Final Recommendation', 'Final Comment'];
+    const headers = [
+      'Student Name', 'Email', 'Course', 'Batch', 'Status', 
+      'Interpersonal Skills', 'Language Proficiency', 'Camera & Environment',
+      'Technical (Solved)', 'Technical (Partially Solved)', "Technical (Can't Solve)",
+      'Problem Solving', 'Final Recommendation', 'Final Comment'
+    ];
+    
     const rows = interviews.map(intv => {
       const fb = intv.feedback || {};
+      
+      // Formatting Language
+      let languageStr = '';
+      if (fb.bengaliLevel) languageStr += `Bengali: ${fb.bengaliLevel} ${fb.bengaliComment ? '('+fb.bengaliComment+')' : ''} | `;
+      if (fb.englishLevel) languageStr += `English: ${fb.englishLevel} ${fb.englishComment ? '('+fb.englishComment+')' : ''}`;
+      
+      // Formatting Camera
+      let cameraStr = fb.cameraOn ? `On (Eye: ${fb.eyeContact || 'N/A'}, BG: ${fb.backgroundLevel || 'N/A'})` : 'Off';
+      if (fb.cameraComment) cameraStr += ` - ${fb.cameraComment}`;
+      
+      // Formatting Technical
+      const solved = [];
+      const partial = [];
+      const cant = [];
+      
+      if (fb.technicalEvaluation && typeof fb.technicalEvaluation === 'object') {
+        Object.entries(fb.technicalEvaluation).forEach(([catKey, catData]) => {
+          if (catData.topics && Array.isArray(catData.topics)) {
+            catData.topics.forEach(t => {
+              const itemStr = `[${catKey.toUpperCase()}] ${t.name}`;
+              if (t.status === 'solved') solved.push(itemStr);
+              else if (t.status === 'partially_solved') partial.push(itemStr);
+              else if (t.status === 'cant_solve') cant.push(itemStr);
+            });
+          }
+        });
+      }
+      
       return [
         intv.student?.name || '',
         intv.student?.email || '',
         intv.student?.course || '',
+        intv.student?.batch || '',
         intv.status || '',
+        `${fb.interpersonalLevel || 'N/A'} ${fb.interpersonalComment ? '- ' + fb.interpersonalComment : ''}`,
+        languageStr.replace(/ \| $/, ''),
+        cameraStr,
+        solved.join('\n'),
+        partial.join('\n'),
+        cant.join('\n'),
+        `${(fb.problemSolvingLevel || '').replace('_', ' ')} ${fb.problemSolvingComment ? '- ' + fb.problemSolvingComment : ''}`,
         fb.finalRecommendation || '',
-        (fb.finalComment || '').replace(/"/g, '""') // Escape quotes for CSV
-      ].map(field => `"${field}"`).join(','); // Wrap in quotes to handle commas
+        fb.finalComment || ''
+      ].map(field => `"${(field || '').toString().replace(/"/g, '""')}"`).join(','); 
     });
 
     const csvContent = [headers.join(','), ...rows].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `interviews_export_${new Date().toISOString().slice(0,10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    
+    // Create TSV for clipboard
+    const tsvContent = [headers.join('\t'), ...rows.map(r => r.split(',').map(c => c.replace(/^"|"$/g, '').replace(/\n/g, ' ')).join('\t'))].join('\n');
+
+    Swal.fire({
+      title: 'Export Data',
+      text: 'How would you like to export this data?',
+      icon: 'question',
+      showCancelButton: true,
+      showDenyButton: true,
+      confirmButtonText: 'Download File',
+      denyButtonText: 'Copy for Google Sheets',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#16a34a',
+      denyButtonColor: '#2563eb'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `interviews_export_${new Date().toISOString().slice(0,10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else if (result.isDenied) {
+        navigator.clipboard.writeText(tsvContent).then(() => {
+          Swal.fire('Copied!', 'Data copied to clipboard. You can now paste it directly into an empty Google Sheet.', 'success');
+        }).catch(err => {
+          Swal.fire('Error', 'Failed to copy data. Please try downloading instead.', 'error');
+        });
+      }
+    });
   };
 
   return (
