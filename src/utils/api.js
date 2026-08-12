@@ -9,5 +9,5 @@ export async function fetchWithAuth(url, options = {}) {
     "Authorization": `Bearer ${token}`
   };
 
-  return fetch(url, { ...options, headers });
+  return fetch(url, { ...options, headers, credentials: 'include' });
 }

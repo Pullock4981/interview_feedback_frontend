@@ -21,7 +21,7 @@ export default function QuestionBankPage() {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     };
-    return fetch(url, { ...options, headers });
+    return fetch(url, { ...options, headers, credentials: 'include' });
   };
 
   const fetchBanks = async () => {
