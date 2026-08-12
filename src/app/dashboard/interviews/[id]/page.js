@@ -443,10 +443,20 @@ export default function InterviewFeedback() {
               <Shield className="w-4 h-4 text-primary" />
               Interview Feedback Details
             </h1>
-            <p className="text-gray-500 text-xs mt-1">
-              Student: <strong className="text-gray-800 dark:text-gray-200">{studentInfo?.name || "Unknown"}</strong> | 
-              Course: {studentInfo?.course || "N/A"} - Batch {studentInfo?.batch || "N/A"}
-            </p>
+            <div className="text-gray-500 text-xs mt-1 flex flex-wrap items-center gap-2">
+              <span>Student: <strong className="text-gray-800 dark:text-gray-200">{studentInfo?.name || "Unknown"}</strong></span>
+              <span>| Course: {studentInfo?.course || "N/A"} - Batch {studentInfo?.batch || "N/A"}</span>
+              {studentInfo?.metadata && Object.keys(studentInfo.metadata).length > 0 && (
+                <>
+                  <span>|</span>
+                  {Object.entries(studentInfo.metadata).map(([k, v]) => (
+                    <span key={k} className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
+                      {k}: {v}
+                    </span>
+                  ))}
+                </>
+              )}
+            </div>
           </div>
         </div>
 
@@ -590,10 +600,20 @@ export default function InterviewFeedback() {
       <div className="bg-white dark:bg-gray-800 rounded-xl p-2.5 shadow-sm border border-gray-100 dark:border-gray-700 mb-3 flex justify-between items-center shrink-0">
         <div>
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">Interview Feedback Form</h1>
-          <p className="text-gray-500 text-xs">
-            Student: <strong className="text-gray-800 dark:text-gray-200">{studentInfo?.name || "Unknown"}</strong> | 
-            Course: {studentInfo?.course || "N/A"} - {studentInfo?.batch || ""}
-          </p>
+          <div className="text-gray-500 text-xs mt-1 flex flex-wrap items-center gap-2">
+            <span>Student: <strong className="text-gray-800 dark:text-gray-200">{studentInfo?.name || "Unknown"}</strong></span>
+            <span>| Course: {studentInfo?.course || "N/A"} - {studentInfo?.batch || ""}</span>
+            {studentInfo?.metadata && Object.keys(studentInfo.metadata).length > 0 && (
+              <>
+                <span>|</span>
+                {Object.entries(studentInfo.metadata).map(([k, v]) => (
+                  <span key={k} className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
+                    {k}: {v}
+                  </span>
+                ))}
+              </>
+            )}
+          </div>
         </div>
         <div className="flex space-x-2">
           <button type="button" onClick={handleSaveDraft} className="px-4 py-1.5 text-sm font-semibold text-primary bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors">

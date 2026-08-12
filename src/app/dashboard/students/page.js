@@ -128,15 +128,27 @@ export default function StudentsPage() {
               skipEmptyLines: true,
               complete: async (results) => {
                 try {
-                  const rows = results.data.map(row => ({
-                    name: row.Name || row.name || 'Unknown',
-                    email: row.Email || row.email,
-                    phone: row.Phone || row.phone || '',
-                    course: courseStr || row.Course || row.course || '',
-                    batch: batchStr || row.Batch || row.batch || '',
-                    level: levelStr || '',
-                    slot: row.Slot || row.slot || ''
-                  })).filter(r => r.email);
+                  const standardKeys = ['Name', 'name', 'Email', 'email', 'Phone', 'phone', 'Course', 'course', 'Batch', 'batch', 'Slot', 'slot'];
+                  const rows = results.data.map(row => {
+                    const normalizedRow = {
+                      name: row.Name || row.name || 'Unknown',
+                      email: row.Email || row.email,
+                      phone: row.Phone || row.phone || '',
+                      course: courseStr || row.Course || row.course || '',
+                      batch: batchStr || row.Batch || row.batch || '',
+                      level: levelStr || '',
+                      slot: row.Slot || row.slot || '',
+                      metadata: {}
+                    };
+                    
+                    Object.keys(row).forEach(key => {
+                      if (key && !standardKeys.includes(key) && row[key] !== undefined && row[key] !== null && row[key] !== '') {
+                        normalizedRow.metadata[key] = row[key];
+                      }
+                    });
+                    
+                    return normalizedRow;
+                  }).filter(r => r.email);
 
                   if (rows.length === 0) return reject(new Error("No valid rows found"));
 
@@ -401,7 +413,20 @@ export default function StudentsPage() {
                       <tbody>
                         {groupedInterviews[activeProgramme].map((intv) => (
                           <tr key={intv._id} className="border-b last:border-0 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                            <td className="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">{intv.student?.name}</td>
+                            <td className="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                              <div className="flex flex-col gap-1">
+                                <span>{intv.student?.name}</span>
+                                {intv.student?.metadata && Object.keys(intv.student.metadata).length > 0 && (
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    {Object.entries(intv.student.metadata).map(([k, v]) => (
+                                      <span key={k} className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                        {k}: {v}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </td>
                             <td className="px-6 py-4 whitespace-nowrap">{intv.student?.email}</td>
                             <td className="px-6 py-4 whitespace-nowrap">{intv.student?.phone || 'N/A'}</td>
                             <td className="px-6 py-4 whitespace-nowrap">
