@@ -121,15 +121,54 @@ export default function StudentsPage() {
           
           const result = await new Promise((resolve, reject) => {
             Papa.parse(csvData, {
-              header: true,
-              skipEmptyLines: true,
+              header: false,
+              skipEmptyLines: 'greedy',
               complete: async (results) => {
                 try {
-                  const rows = results.data.map(row => {
+                  const rawRows = results.data;
+                  if (!rawRows || rawRows.length === 0) throw new Error("No valid data found in the file.");
+
+                  // 1. Find the header row (scan first 10 rows for 'email')
+                  let headerIndex = 0;
+                  let headers = [];
+                  for (let i = 0; i < Math.min(10, rawRows.length); i++) {
+                    const row = rawRows[i];
+                    if (row.some(cell => typeof cell === 'string' && ['email', 'e-mail'].includes(cell.toLowerCase().trim()))) {
+                      headerIndex = i;
+                      headers = row.map(c => typeof c === 'string' ? c.trim() : `Column_${Math.random()}`);
+                      break;
+                    }
+                  }
+
+                  if (headers.length === 0) {
+                    headers = rawRows[0].map((c, i) => typeof c === 'string' && c.trim() ? c.trim() : `Column_${i}`);
+                  }
+
+                  // 2. Convert to Array of Objects
+                  const objectRows = [];
+                  for (let i = headerIndex + 1; i < rawRows.length; i++) {
+                    const obj = {};
+                    headers.forEach((h, idx) => {
+                      if (h && !h.startsWith('Column_')) { // Ignore completely empty headers
+                        // If duplicate headers exist, this will overwrite, which is fine as usually only one has data
+                        if (!obj[h] || rawRows[i][idx]) {
+                           obj[h] = rawRows[i][idx];
+                        }
+                      }
+                    });
+                    if (Object.values(obj).some(val => val !== undefined && val !== null && val !== '')) {
+                       objectRows.push(obj);
+                    }
+                  }
+
+                  // 3. Process exactly as before
+                  const standardKeysLower = ['name', 'student name', 'candidate name', 'email', 'e-mail', 'email address', 'phone', 'phone number', 'contact', 'mobile', 'course', 'programme', 'batch', 'slot', 'time slot', 'interview slot'];
+                  
+                  const rows = objectRows.map(row => {
                     const getVal = (possibleKeys) => {
                       const rowKeys = Object.keys(row);
                       for (const k of rowKeys) {
-                        if (possibleKeys.includes(k.trim().toLowerCase())) {
+                        if (possibleKeys.includes(k.toLowerCase().trim())) {
                           return row[k];
                         }
                       }
@@ -154,9 +193,8 @@ export default function StudentsPage() {
                       metadata: {}
                     };
                     
-                    const standardKeysLower = ['name', 'student name', 'candidate name', 'email', 'e-mail', 'email address', 'phone', 'phone number', 'contact', 'mobile', 'course', 'programme', 'batch', 'slot', 'time slot', 'interview slot'];
                     Object.keys(row).forEach(key => {
-                      if (key && !standardKeysLower.includes(key.trim().toLowerCase()) && row[key] !== undefined && row[key] !== null && row[key] !== '') {
+                      if (key && !standardKeysLower.includes(key.toLowerCase().trim()) && row[key] !== undefined && row[key] !== null && row[key] !== '') {
                         normalizedRow.metadata[key.trim()] = row[key];
                       }
                     });
@@ -164,7 +202,7 @@ export default function StudentsPage() {
                     return normalizedRow;
                   }).filter(r => r.email);
 
-                  if (rows.length === 0) return reject(new Error("No valid rows found"));
+                  if (rows.length === 0) return reject(new Error("No valid rows found after parsing."));
 
                   const importRes = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/students/import`, {
                     method: 'POST',
