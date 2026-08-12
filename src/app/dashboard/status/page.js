@@ -1,7 +1,7 @@
 "use client";
 import { fetchWithAuth } from "@/utils/api";
 import { useState, useEffect } from "react";
-import { Search, Filter, CheckCircle2, ClipboardList, Download } from "lucide-react";
+import { Search, Filter, CheckCircle2, ClipboardList, Download, Copy } from "lucide-react";
 import Swal from "sweetalert2";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -27,11 +27,7 @@ export default function StatusList() {
     fetchInterviews();
   }, []);
 
-  const handleExportCSV = () => {
-    if (!interviews || interviews.length === 0) {
-      return Swal.fire('No Data', 'There are no completed interviews to export.', 'info');
-    }
-
+  const getFormattedRows = () => {
     const headers = [
       'Student Name', 'Email', 'Course', 'Batch', 'Status', 
       'Interpersonal Skills', 'Language Proficiency', 'Camera & Environment',
@@ -84,42 +80,43 @@ export default function StatusList() {
         `${(fb.problemSolvingLevel || '').replace('_', ' ')} ${fb.problemSolvingComment ? '- ' + fb.problemSolvingComment : ''}`,
         fb.finalRecommendation || '',
         fb.finalComment || ''
-      ].map(field => `"${(field || '').toString().replace(/"/g, '""')}"`).join(','); 
+      ];
     });
 
-    const csvContent = [headers.join(','), ...rows].join('\n');
-    
-    // Create TSV for clipboard
-    const tsvContent = [headers.join('\t'), ...rows.map(r => r.split(',').map(c => c.replace(/^"|"$/g, '').replace(/\n/g, ' ')).join('\t'))].join('\n');
+    return { headers, rows };
+  };
 
-    Swal.fire({
-      title: 'Export Data',
-      text: 'How would you like to export this data?',
-      icon: 'question',
-      showCancelButton: true,
-      showDenyButton: true,
-      confirmButtonText: 'Download File',
-      denyButtonText: 'Copy for Google Sheets',
-      cancelButtonText: 'Cancel',
-      confirmButtonColor: '#16a34a',
-      denyButtonColor: '#2563eb'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", `interviews_export_${new Date().toISOString().slice(0,10)}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else if (result.isDenied) {
-        navigator.clipboard.writeText(tsvContent).then(() => {
-          Swal.fire('Copied!', 'Data copied to clipboard. You can now paste it directly into an empty Google Sheet.', 'success');
-        }).catch(err => {
-          Swal.fire('Error', 'Failed to copy data. Please try downloading instead.', 'error');
-        });
-      }
+  const handleExportCSV = () => {
+    if (!interviews || interviews.length === 0) {
+      return Swal.fire('No Data', 'There are no completed interviews to export.', 'info');
+    }
+
+    const { headers, rows } = getFormattedRows();
+    const csvContent = [headers.join(','), ...rows.map(r => r.map(field => `"${(field || '').toString().replace(/"/g, '""')}"`).join(','))].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `interviews_export_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleCopyForGoogleSheet = () => {
+    if (!interviews || interviews.length === 0) {
+      return Swal.fire('No Data', 'There are no completed interviews to export.', 'info');
+    }
+
+    const { headers, rows } = getFormattedRows();
+    // Create TSV for clipboard
+    const tsvContent = [headers.join('\t'), ...rows.map(r => r.map(c => (c || '').toString().replace(/\n/g, ' ')).join('\t'))].join('\n');
+
+    navigator.clipboard.writeText(tsvContent).then(() => {
+      Swal.fire('Copied!', 'Data copied to clipboard. You can now paste it directly into an empty Google Sheet.', 'success');
+    }).catch(err => {
+      Swal.fire('Error', 'Failed to copy data. Please try downloading instead.', 'error');
     });
   };
 
@@ -130,13 +127,22 @@ export default function StatusList() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Completed Interviews</h1>
           <p className="text-gray-500 mt-2">View interviews you have successfully submitted.</p>
         </div>
-        <button 
-          onClick={handleExportCSV}
-          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold shadow-sm flex items-center gap-2 transition-colors"
-        >
-          <Download className="w-4 h-4" />
-          Export CSV
-        </button>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={handleCopyForGoogleSheet}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-sm flex items-center gap-2 transition-colors cursor-pointer"
+          >
+            <Copy className="w-4 h-4" />
+            Copy for Google Sheet
+          </button>
+          <button 
+            onClick={handleExportCSV}
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold shadow-sm flex items-center gap-2 transition-colors cursor-pointer"
+          >
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
+        </div>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
