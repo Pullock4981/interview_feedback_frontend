@@ -534,21 +534,21 @@ export default function StudentsPage() {
                               {intv.status === 'Completed' ? (
                                 <Link 
                                   href={`/dashboard/feedbacks/${intv._id}`} 
-                                  className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-bold text-white bg-green-600 hover:bg-green-700 rounded-md shadow-sm transition-colors"
+                                  className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-bold text-white bg-green-600 hover:bg-green-700 rounded-md shadow-sm transition-colors cursor-pointer"
                                 >
                                   View Feedback
                                 </Link>
                               ) : (
                                 <button 
                                   onClick={() => handleStartInterview(intv.student._id, intv._id, intv.status)}
-                                  className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-bold text-white bg-primary hover:bg-primary-hover rounded-md shadow-sm transition-colors"
+                                  className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-bold text-white bg-primary hover:bg-primary-hover rounded-md shadow-sm transition-colors cursor-pointer"
                                 >
                                   {intv.status === 'Assigned' ? 'Start Interview' : 'Continue Interview'}
                                 </button>
                               )}
                               <button
                                 onClick={() => handleDeleteInterview(intv._id, intv.student?.name)}
-                                className="inline-flex items-center justify-center px-2 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-500 hover:text-white rounded-md shadow-sm transition-colors"
+                                className="inline-flex items-center justify-center px-2 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-500 hover:text-white rounded-md shadow-sm transition-colors cursor-pointer"
                                 title="Delete"
                               >
                                 <Trash2 className="w-4 h-4" />
