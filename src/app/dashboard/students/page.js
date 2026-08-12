@@ -109,10 +109,7 @@ export default function StudentsPage() {
             fetchUrl = `https://docs.google.com/spreadsheets/d/${match[1]}/export?format=csv`;
           }
 
-          // Use a CORS proxy to prevent browser CORS blocks
-          const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(fetchUrl)}`;
-
-          const response = await fetch(proxyUrl);
+          const response = await fetch(fetchUrl);
           if (!response.ok) throw new Error("Could not fetch the sheet. Make sure it is public (Anyone with the link can view).");
           
           const csvData = await response.text();
