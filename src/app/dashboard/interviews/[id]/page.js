@@ -60,6 +60,7 @@ export default function InterviewFeedback() {
     status: "", 
     comment: ""
   });
+  const [showProblemSolvingSection, setShowProblemSolvingSection] = useState(true);
 
   const [experienceLevel, setExperienceLevel] = useState("fresher");
 
@@ -71,7 +72,26 @@ export default function InterviewFeedback() {
         const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/interviews/${interviewId}`);
         const data = await res.json();
         if (data.success) {
-          setStudentInfo(data.data.student);
+          const studentInfoObj = data.data.student;
+          const course = data.data.course || studentInfoObj?.course || 'N/A';
+          setStudentInfo({ ...studentInfoObj, course });
+          
+          let templateCategories = INITIAL_CATEGORIES;
+          if (course && course !== 'N/A') {
+            try {
+              const tplRes = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/course-templates/${encodeURIComponent(course)}`);
+              const tplData = await tplRes.json();
+              if (tplData.success && tplData.data) {
+                if (tplData.data.categories?.length > 0) {
+                  templateCategories = tplData.data.categories;
+                  setCategories(templateCategories);
+                }
+                setShowProblemSolvingSection(tplData.data.showProblemSolving !== false);
+              }
+            } catch (tplErr) {
+              console.error("Failed to fetch template", tplErr);
+            }
+          }
           
           // Fetch existing feedback
           const fbRes = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/feedback/${interviewId}`);
@@ -81,41 +101,42 @@ export default function InterviewFeedback() {
             const fb = fbData.data.feedback;
             setFeedbackStatus(fb.status || "draft");
             
-            if (fb.bengaliLevel) {
-              setSelectedLanguage("Bengali");
-              setBengaliLevel(fb.bengaliLevel);
-              if (fb.bengaliComment) setBengaliComment(fb.bengaliComment);
-            } else if (fb.englishLevel) {
-              setSelectedLanguage("English");
-              setEnglishLevel(fb.englishLevel);
-              if (fb.englishComment) setEnglishComment(fb.englishComment);
-            }
-            if (fb.cameraOn !== undefined && fb.cameraOn !== null) setCameraOn(fb.cameraOn);
-            if (fb.eyeContact) setEyeContact(fb.eyeContact);
-            if (fb.backgroundLevel) setBackgroundLevel(fb.backgroundLevel);
-            if (fb.cameraComment) setCameraComment(fb.cameraComment);
+            setSelectedLanguage(fb.bengaliLevel ? "Bengali" : fb.englishLevel ? "English" : null);
+            setBengaliLevel(fb.bengaliLevel || "Excellent");
+            setBengaliComment(fb.bengaliComment || "");
+            setEnglishLevel(fb.englishLevel || "Excellent");
+            setEnglishComment(fb.englishComment || "");
             
-            if (fb.interpersonalLevel) setInterpersonal(prev => ({ ...prev, status: fb.interpersonalLevel }));
-            if (fb.interpersonalComment) setInterpersonal(prev => ({ ...prev, comment: fb.interpersonalComment }));
+            setCameraOn(fb.cameraOn !== false);
+            setEyeContact(fb.eyeContact || "Excellent");
+            setBackgroundLevel(fb.backgroundLevel || "Excellent");
+            setCameraComment(fb.cameraComment || "");
             
-            if (fb.problemSolvingLevel) setProblemSolving(prev => ({ ...prev, status: fb.problemSolvingLevel }));
-            if (fb.problemSolvingComment) setProblemSolving(prev => ({ ...prev, comment: fb.problemSolvingComment }));
+            setInterpersonal({ status: fb.interpersonalLevel || "Excellent", comment: fb.interpersonalComment || "" });
+            setProblemSolving({ status: fb.problemSolvingLevel || "", comment: fb.problemSolvingComment || "" });
             
-            if (fb.finalRecommendation) setFinalRecommendation(fb.finalRecommendation);
-            if (fb.finalComment) setFinalComment(fb.finalComment);
+            setFinalRecommendation(fb.finalRecommendation || "");
+            setFinalComment(fb.finalComment || "");
             
-            if (fb.technicalEvaluation && Object.keys(fb.technicalEvaluation).length > 0) {
-              setTechEval(fb.technicalEvaluation);
-              const newCats = [];
-              const existingIds = INITIAL_CATEGORIES.map(c => c.id);
-              for (const key of Object.keys(fb.technicalEvaluation)) {
-                if (!existingIds.includes(key)) {
-                  newCats.push({ id: key, label: key, suggestions: [] });
+              if (fb.technicalEvaluation && Object.keys(fb.technicalEvaluation).length > 0) {
+                setTechEval(fb.technicalEvaluation);
+                const newCats = [];
+                const existingIds = templateCategories.map(c => c.id);
+                for (const key of Object.keys(fb.technicalEvaluation)) {
+                  if (!existingIds.includes(key)) {
+                    newCats.push({ id: key, label: key, suggestions: [] });
+                  }
                 }
-              }
-              if (newCats.length > 0) {
-                setCategories([...INITIAL_CATEGORIES, ...newCats]);
-              }
+                if (newCats.length > 0) {
+                  setCategories([...templateCategories, ...newCats]);
+                }
+              } else {
+                const initialTechEval = {};
+                templateCategories.forEach(cat => {
+                  initialTechEval[cat.id] = { topics: [], comment: "" };
+                });
+                setTechEval(initialTechEval);
+                setCategories(templateCategories);
             }
           }
         } else {
@@ -145,8 +166,8 @@ export default function InterviewFeedback() {
       interpersonalLevel: interpersonal.status,
       interpersonalComment: interpersonal.comment,
       
-      problemSolvingLevel: problemSolving.status,
-      problemSolvingComment: problemSolving.comment,
+      problemSolvingLevel: showProblemSolvingSection ? problemSolving.status : null,
+      problemSolvingComment: showProblemSolvingSection ? problemSolving.comment : null,
       
       finalRecommendation,
       finalComment,
@@ -171,6 +192,67 @@ export default function InterviewFeedback() {
       }
     } catch (err) {
       Swal.fire('Error', 'Something went wrong', 'error');
+    }
+  };
+
+  const handleLoadFromBank = async () => {
+    try {
+      const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/questions`);
+      const data = await res.json();
+      if (!data.success || !data.data.length) {
+        return Swal.fire('No Banks Found', 'You have not created any question banks yet. Create one from the Question Bank page.', 'info');
+      }
+      
+      const options = {};
+      data.data.forEach(bank => {
+        options[bank._id] = bank.title;
+      });
+
+      const { value: selectedId } = await Swal.fire({
+        title: 'Select Question Bank',
+        input: 'select',
+        inputOptions: options,
+        inputPlaceholder: 'Select a bank',
+        showCancelButton: true,
+      });
+
+      if (selectedId) {
+        const selectedBank = data.data.find(b => b._id === selectedId);
+        if (selectedBank && selectedBank.questions) {
+          // Merge questions into techEval
+          setTechEval(prev => {
+            const updated = { ...prev };
+            Object.keys(selectedBank.questions).forEach(cat => {
+              if (!updated[cat]) updated[cat] = { topics: [], comment: "" };
+              // Ensure we don't duplicate questions if they exist
+              const existingTopicNames = updated[cat].topics.map(t => t.name);
+              const newTopics = selectedBank.questions[cat].topics || [];
+              newTopics.forEach(t => {
+                if (!existingTopicNames.includes(t.name)) {
+                  updated[cat].topics.push({ ...t, status: 'pending' });
+                }
+              });
+            });
+            return updated;
+          });
+          
+          // Add missing categories to the UI list
+          setCategories(prev => {
+            const updated = [...prev];
+            const existingIds = updated.map(c => c.id);
+            Object.keys(selectedBank.questions).forEach(cat => {
+              if (!existingIds.includes(cat)) {
+                updated.push({ id: cat, label: cat, suggestions: [] });
+              }
+            });
+            return updated;
+          });
+          
+          Swal.fire('Loaded!', 'Question bank has been loaded into the evaluation.', 'success');
+        }
+      }
+    } catch (err) {
+      Swal.fire('Error', 'Failed to load question banks', 'error');
     }
   };
 
@@ -409,11 +491,13 @@ export default function InterviewFeedback() {
             <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
               <h2 className="text-sm font-bold text-primary mb-4 border-b pb-1">General Feedback</h2>
               
-              <div className="mb-4">
-                <h3 className="font-bold text-gray-800 dark:text-gray-200 text-xs mb-1">Problem Solving</h3>
-                <p className="text-sm font-semibold capitalize text-primary">{problemSolving.status ? problemSolving.status.replace("_", " ") : "N/A"}</p>
-                {problemSolving.comment && <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 italic">"{problemSolving.comment}"</p>}
-              </div>
+              {showProblemSolvingSection && (
+                <div className="mb-4">
+                  <h3 className="font-bold text-gray-800 dark:text-gray-200 text-xs mb-1">Problem Solving</h3>
+                  <p className="text-sm font-semibold capitalize text-primary">{problemSolving.status ? problemSolving.status.replace("_", " ") : "N/A"}</p>
+                  {problemSolving.comment && <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 italic">"{problemSolving.comment}"</p>}
+                </div>
+              )}
               
               <div className="mb-4">
                 <h3 className="font-bold text-gray-800 dark:text-gray-200 text-xs mb-1">Interpersonal Skills</h3>
@@ -690,9 +774,10 @@ export default function InterviewFeedback() {
             <div className="flex justify-between items-center mb-3 border-b pb-1 shrink-0">
               <h2 className="text-sm font-bold text-primary flex items-center gap-2">
                 Technical Evaluation
-                <button type="button" onClick={handleAddCategory} className="px-2 py-0.5 text-[10px] bg-primary/10 hover:bg-primary/20 text-primary rounded font-bold cursor-pointer transition-colors">+ Add Section</button>
+                <button type="button" onClick={handleAddCategory} className="px-3 py-1 text-xs bg-primary/10 hover:bg-primary/20 text-primary rounded font-bold cursor-pointer transition-colors">+ Add Section</button>
+                <button type="button" onClick={handleLoadFromBank} className="px-3 py-1 text-xs bg-green-600/10 hover:bg-green-600/20 text-green-700 rounded font-bold cursor-pointer transition-colors">Load from Bank</button>
               </h2>
-              <span className="text-[10px] text-gray-500 italic">Select from Question Bank. Evaluate using options below.</span>
+              <span className="text-[10px] text-gray-500 italic">Select from Question Bank or add manually.</span>
             </div>
 
             {/* Experience Level Selector */}
@@ -764,7 +849,10 @@ export default function InterviewFeedback() {
                       className="w-full px-3 py-1.5 border rounded-md bg-white dark:bg-gray-800 dark:border-gray-600 text-sm focus:ring-1 focus:ring-primary focus:outline-none cursor-pointer"
                     >
                       <option value="">Select a question from Question Bank...</option>
-                      {((questionBank[cat.id]?.[experienceLevel]) || cat.suggestions || []).filter(sug => !catData.topics.find(t => t.name.toLowerCase() === sug.toLowerCase())).map(sug => (
+                      {((cat.suggestions && cat.suggestions.length > 0) 
+                          ? cat.suggestions 
+                          : (questionBank[cat.id]?.[experienceLevel] || [])
+                       ).filter(sug => !catData.topics.find(t => t.name.toLowerCase() === sug.toLowerCase())).map(sug => (
                         <option key={sug} value={sug}>{sug}</option>
                       ))}
                     </select>
@@ -829,54 +917,7 @@ export default function InterviewFeedback() {
                 </div>
               )})}
 
-              {/* Problem Solving Category */}
-              <div className="p-3 border rounded-lg dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30 flex flex-col gap-2 shadow-sm">
-                <label className="font-bold text-sm text-gray-800 dark:text-gray-200">Problem Solving</label>
-                
-                <div className="flex items-center gap-4 mt-2 mb-1 flex-wrap">
-                  <label className="flex items-center gap-1.5 text-xs font-semibold cursor-pointer text-green-700 dark:text-green-400">
-                    <input 
-                      type="radio" 
-                      name="ps_status" 
-                      value="solved" 
-                      checked={problemSolving.status === 'solved'} 
-                      onChange={() => setProblemSolving({...problemSolving, status: 'solved'})} 
-                      className="text-green-600 focus:ring-green-500" 
-                    /> 
-                    Solved
-                  </label>
-                  <label className="flex items-center gap-1.5 text-xs font-semibold cursor-pointer text-orange-600 dark:text-orange-400">
-                    <input 
-                      type="radio" 
-                      name="ps_status" 
-                      value="partially_solved" 
-                      checked={problemSolving.status === 'partially_solved'} 
-                      onChange={() => setProblemSolving({...problemSolving, status: 'partially_solved'})} 
-                      className="text-orange-500 focus:ring-orange-500" 
-                    /> 
-                    Partially Solved
-                  </label>
-                  <label className="flex items-center gap-1.5 text-xs font-semibold cursor-pointer text-red-600 dark:text-red-400">
-                    <input 
-                      type="radio" 
-                      name="ps_status" 
-                      value="cant_solve" 
-                      checked={problemSolving.status === 'cant_solve'} 
-                      onChange={() => setProblemSolving({...problemSolving, status: 'cant_solve'})} 
-                      className="text-red-500 focus:ring-red-500" 
-                    /> 
-                    Can't Solve
-                  </label>
-                </div>
 
-                <textarea 
-                  value={problemSolving.comment}
-                  onChange={(e) => setProblemSolving({...problemSolving, comment: e.target.value})}
-                  placeholder="Optional comment..."
-                  className="w-full px-3 py-2 mt-auto border rounded-md bg-white dark:bg-gray-800 dark:border-gray-600 text-xs focus:ring-1 focus:ring-primary focus:outline-none resize-none"
-                  rows="2"
-                ></textarea>
-              </div>
 
             </div>
           </section>

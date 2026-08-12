@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { fetchWithAuth } from "@/utils/api";
-import { Shield, UserCheck, UserX, Search, BookOpen, CheckCircle, Eye } from "lucide-react";
+import { Shield, UserCheck, UserX, Search, BookOpen, CheckCircle, Eye, Trash2 } from "lucide-react";
 import Swal from "sweetalert2";
 import Link from "next/link";
 
@@ -57,6 +57,35 @@ export default function UsersPage() {
           fetchInstructors();
         } else {
           Swal.fire("Error", data.error?.message || data.message || "Failed to update status", "error");
+        }
+      } catch (err) {
+        Swal.fire("Error", "Something went wrong", "error");
+      }
+    }
+  };
+
+  const handleDelete = async (id, name) => {
+    const result = await Swal.fire({
+      title: "Delete Instructor?",
+      text: `Are you sure you want to permanently delete instructor "${name}"? This action cannot be undone.`,
+      icon: "error",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, delete",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/users/${id}`, {
+          method: "DELETE",
+        });
+        const data = await res.json();
+        if (data.success) {
+          Swal.fire("Deleted!", "Instructor has been deleted.", "success");
+          fetchInstructors();
+        } else {
+          Swal.fire("Error", data.error?.message || data.message || "Failed to delete instructor", "error");
         }
       } catch (err) {
         Swal.fire("Error", "Something went wrong", "error");
@@ -206,6 +235,12 @@ export default function UsersPage() {
                               <UserCheck className="w-3.5 h-3.5 mr-1.5" /> Reactivate
                             </>
                           )}
+                        </button>
+                        <button
+                          onClick={() => handleDelete(inst._id, inst.name)}
+                          className="inline-flex items-center px-3 py-2 rounded-lg text-xs font-bold transition-all bg-red-50 text-red-600 hover:bg-red-500 hover:text-white hover:shadow-md dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-500 dark:hover:text-white"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 mr-1.5" /> Delete
                         </button>
                       </div>
                     </td>

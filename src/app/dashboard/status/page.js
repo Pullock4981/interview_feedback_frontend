@@ -1,7 +1,7 @@
 "use client";
 import { fetchWithAuth } from "@/utils/api";
 import { useState, useEffect } from "react";
-import { Search, Filter, CheckCircle2, ClipboardList } from "lucide-react";
+import { Search, Filter, CheckCircle2, ClipboardList, Download } from "lucide-react";
 import Swal from "sweetalert2";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -27,11 +27,49 @@ export default function StatusList() {
     fetchInterviews();
   }, []);
 
+  const handleExportCSV = () => {
+    if (!interviews || interviews.length === 0) {
+      return Swal.fire('No Data', 'There are no completed interviews to export.', 'info');
+    }
+
+    const headers = ['Student Name', 'Email', 'Course', 'Status', 'Final Recommendation', 'Final Comment'];
+    const rows = interviews.map(intv => {
+      const fb = intv.feedback || {};
+      return [
+        intv.student?.name || '',
+        intv.student?.email || '',
+        intv.student?.course || '',
+        intv.status || '',
+        fb.finalRecommendation || '',
+        (fb.finalComment || '').replace(/"/g, '""') // Escape quotes for CSV
+      ].map(field => `"${field}"`).join(','); // Wrap in quotes to handle commas
+    });
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `interviews_export_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Completed Interviews</h1>
-        <p className="text-gray-500 mt-2">View interviews you have successfully submitted.</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Completed Interviews</h1>
+          <p className="text-gray-500 mt-2">View interviews you have successfully submitted.</p>
+        </div>
+        <button 
+          onClick={handleExportCSV}
+          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold shadow-sm flex items-center gap-2 transition-colors"
+        >
+          <Download className="w-4 h-4" />
+          Export CSV
+        </button>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">

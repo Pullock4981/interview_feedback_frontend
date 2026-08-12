@@ -13,6 +13,7 @@ import {
   User,
   Users,
   CheckCircle,
+  BookOpen,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -31,6 +32,7 @@ export function Sidebar() {
       { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
       { name: "Students", href: "/dashboard/students", icon: Users },
       { name: "Interviews", href: "/dashboard/interviews", icon: ClipboardList },
+      { name: "Question Bank", href: "/dashboard/question-bank", icon: BookOpen },
       { name: "Status", href: "/dashboard/status", icon: CheckCircle },
     ];
   }
