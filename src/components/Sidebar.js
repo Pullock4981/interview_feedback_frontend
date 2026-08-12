@@ -43,12 +43,12 @@ export function Sidebar() {
       <div className="py-6 flex flex-col items-center justify-center border-b border-white/10">
         <Image 
           src="/assats/Screenshot%202026-08-08%20235637.png" 
-          alt="EvaLens Logo" 
+          alt="NexView Logo" 
           width={64} 
           height={64} 
           className="mb-3 object-contain drop-shadow-md rounded-xl" 
         />
-        <span className="text-xl font-bold tracking-wide">EvaLens</span>
+        <span className="text-xl font-bold tracking-wide">NexView</span>
       </div>
 
       {/* Navigation */}

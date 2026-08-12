@@ -15,7 +15,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata = {
-  title: "EvaLens Dashboard",
+  title: "NexView Dashboard",
   description: "Interview Evaluation System",
 };
 

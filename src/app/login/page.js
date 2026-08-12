@@ -44,12 +44,12 @@ export default function LoginPage() {
         <div className="bg-primary p-8 flex flex-col items-center justify-center text-white">
           <Image 
             src="/assats/Screenshot%202026-08-08%20235637.png" 
-            alt="EvaLens Logo" 
+            alt="NexView Logo" 
             width={80} 
             height={80} 
             className="mb-4 object-contain drop-shadow-md rounded-2xl" 
           />
-          <h1 className="text-3xl font-bold">EvaLens</h1>
+          <h1 className="text-3xl font-bold">NexView</h1>
           <p className="text-white/80 text-sm mt-2">Interview Evaluation System</p>
         </div>
         
