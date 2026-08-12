@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import questionBank from "@/data/questions.json";
 
 const INITIAL_CATEGORIES = [
+  { id: 'problemsolving', label: 'Problem Solving', suggestions: ['Logical Thinking', 'Algorithmic Approach', 'Debugging Skills', 'Code Optimization'] },
   { id: 'htmlcss', label: 'HTML & CSS', suggestions: ['Semantic HTML', 'Flexbox', 'Grid', 'Responsive Design', 'CSS Variables'] },
   { id: 'jsts', label: 'JavaScript & TypeScript', suggestions: ['Closure', 'Promise', 'Event Loop', 'ES6+', 'Interfaces', 'Generics'] },
   { id: 'reactnext', label: 'React & Next.js', suggestions: ['Hooks', 'Context API', 'Server Components', 'Routing', 'Data Fetching'] },
@@ -47,6 +48,7 @@ export default function InterviewFeedback() {
   // Right Column State
   const [categories, setCategories] = useState(INITIAL_CATEGORIES);
   const [techEval, setTechEval] = useState({
+    problemsolving: { topics: [], comment: "" },
     htmlcss: { topics: [], comment: "" },
     jsts: { topics: [], comment: "" },
     reactnext: { topics: [], comment: "" },
@@ -84,6 +86,13 @@ export default function InterviewFeedback() {
               if (tplData.success && tplData.data) {
                 if (tplData.data.categories?.length > 0) {
                   templateCategories = tplData.data.categories;
+                  // Ensure problem solving is always included by default
+                  if (!templateCategories.find(c => c.id === 'problemsolving')) {
+                    templateCategories = [
+                      { id: 'problemsolving', label: 'Problem Solving', suggestions: ['Logical Thinking', 'Algorithmic Approach', 'Debugging Skills', 'Code Optimization'] },
+                      ...templateCategories
+                    ];
+                  }
                   setCategories(templateCategories);
                 }
                 setShowProblemSolvingSection(tplData.data.showProblemSolving !== false);
