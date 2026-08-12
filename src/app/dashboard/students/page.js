@@ -70,9 +70,9 @@ export default function StudentsPage() {
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Level <span class="text-red-500">*</span></label>
-              <select id="swal-input-level" class="swal2-select !m-0 !w-full !flex !text-sm !py-2.5 !border !border-gray-300 !rounded-md !px-3 !bg-white outline-none">
-                <option value="" disabled selected>Select</option>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Level <span class="text-gray-400 font-normal">(Optional)</span></label>
+              <select id="swal-input-level" class="swal2-select !m-0 !w-full !text-sm !p-2 !border-gray-300 !rounded-md">
+                <option value="">Select Level</option>
                 <option value="Level-1">Level-1</option>
                 <option value="Level-2">Level-2</option>
               </select>
@@ -95,8 +95,8 @@ export default function StudentsPage() {
         const levelStr = document.getElementById('swal-input-level').value;
         const batchStr = document.getElementById('swal-input-batch').value;
 
-        if (!url || !courseStr || !levelStr) {
-          Swal.showValidationMessage('Please fill all required fields');
+        if (!url || !courseStr) {
+          Swal.showValidationMessage('Please fill all required fields (Link and Programme Name)');
           return false;
         }
 
@@ -125,22 +125,39 @@ export default function StudentsPage() {
               skipEmptyLines: true,
               complete: async (results) => {
                 try {
-                  const standardKeys = ['Name', 'name', 'Email', 'email', 'Phone', 'phone', 'Course', 'course', 'Batch', 'batch', 'Slot', 'slot'];
                   const rows = results.data.map(row => {
+                    const getVal = (possibleKeys) => {
+                      const rowKeys = Object.keys(row);
+                      for (const k of rowKeys) {
+                        if (possibleKeys.includes(k.trim().toLowerCase())) {
+                          return row[k];
+                        }
+                      }
+                      return null;
+                    };
+                    
+                    const name = getVal(['name', 'student name', 'candidate name']) || 'Unknown';
+                    const email = getVal(['email', 'e-mail', 'email address']);
+                    const phone = getVal(['phone', 'phone number', 'contact', 'mobile']) || '';
+                    const course = courseStr || getVal(['course', 'programme']) || '';
+                    const batch = batchStr || getVal(['batch']) || '';
+                    const slot = getVal(['slot', 'time slot', 'interview slot']) || '';
+                    
                     const normalizedRow = {
-                      name: row.Name || row.name || 'Unknown',
-                      email: row.Email || row.email,
-                      phone: row.Phone || row.phone || '',
-                      course: courseStr || row.Course || row.course || '',
-                      batch: batchStr || row.Batch || row.batch || '',
+                      name,
+                      email,
+                      phone,
+                      course,
+                      batch,
                       level: levelStr || '',
-                      slot: row.Slot || row.slot || '',
+                      slot,
                       metadata: {}
                     };
                     
+                    const standardKeysLower = ['name', 'student name', 'candidate name', 'email', 'e-mail', 'email address', 'phone', 'phone number', 'contact', 'mobile', 'course', 'programme', 'batch', 'slot', 'time slot', 'interview slot'];
                     Object.keys(row).forEach(key => {
-                      if (key && !standardKeys.includes(key) && row[key] !== undefined && row[key] !== null && row[key] !== '') {
-                        normalizedRow.metadata[key] = row[key];
+                      if (key && !standardKeysLower.includes(key.trim().toLowerCase()) && row[key] !== undefined && row[key] !== null && row[key] !== '') {
+                        normalizedRow.metadata[key.trim()] = row[key];
                       }
                     });
                     
