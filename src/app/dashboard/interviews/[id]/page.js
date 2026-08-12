@@ -8,7 +8,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import questionBank from "@/data/questions.json";
 
 const INITIAL_CATEGORIES = [
-  { id: 'problemsolving', label: 'Problem Solving', suggestions: ['Logical Thinking', 'Algorithmic Approach', 'Debugging Skills', 'Code Optimization'] },
   { id: 'htmlcss', label: 'HTML & CSS', suggestions: ['Semantic HTML', 'Flexbox', 'Grid', 'Responsive Design', 'CSS Variables'] },
   { id: 'jsts', label: 'JavaScript & TypeScript', suggestions: ['Closure', 'Promise', 'Event Loop', 'ES6+', 'Interfaces', 'Generics'] },
   { id: 'reactnext', label: 'React & Next.js', suggestions: ['Hooks', 'Context API', 'Server Components', 'Routing', 'Data Fetching'] },
@@ -48,7 +47,6 @@ export default function InterviewFeedback() {
   // Right Column State
   const [categories, setCategories] = useState(INITIAL_CATEGORIES);
   const [techEval, setTechEval] = useState({
-    problemsolving: { topics: [], comment: "" },
     htmlcss: { topics: [], comment: "" },
     jsts: { topics: [], comment: "" },
     reactnext: { topics: [], comment: "" },
@@ -86,13 +84,6 @@ export default function InterviewFeedback() {
               if (tplData.success && tplData.data) {
                 if (tplData.data.categories?.length > 0) {
                   templateCategories = tplData.data.categories;
-                  // Ensure problem solving is always included by default
-                  if (!templateCategories.find(c => c.id === 'problemsolving')) {
-                    templateCategories = [
-                      { id: 'problemsolving', label: 'Problem Solving', suggestions: ['Logical Thinking', 'Algorithmic Approach', 'Debugging Skills', 'Code Optimization'] },
-                      ...templateCategories
-                    ];
-                  }
                   setCategories(templateCategories);
                 }
                 setShowProblemSolvingSection(tplData.data.showProblemSolving !== false);
@@ -171,7 +162,6 @@ export default function InterviewFeedback() {
       backgroundLevel: cameraOn ? backgroundLevel : null,
       cameraComment: cameraOn ? cameraComment : null,
       
-      // using the fields we added to backend schema
       interpersonalLevel: interpersonal.status,
       interpersonalComment: interpersonal.comment,
       
@@ -745,6 +735,35 @@ export default function InterviewFeedback() {
               <p className="text-xs text-gray-500 italic py-2">Camera was off. No visual evaluation recorded.</p>
             )}
           </section>
+
+          {/* Problem Solving */}
+          {showProblemSolvingSection && (
+            <section className="bg-white dark:bg-gray-800 rounded-xl p-3 shadow-sm border border-gray-100 dark:border-gray-700 shrink-0">
+              <h2 className="text-sm font-bold text-primary mb-3 border-b pb-1">Problem Solving</h2>
+              <div className="grid grid-cols-1 gap-3">
+                <div>
+                  <label className="block text-xs font-medium mb-1">Overall Rating</label>
+                  <select 
+                    className="w-full p-1.5 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
+                    value={problemSolving.status}
+                    onChange={(e) => setProblemSolving({...problemSolving, status: e.target.value})}
+                  >
+                    <option value="">Select Phase</option>
+                    <option value="solved">Solved</option>
+                    <option value="partially_solved">Partially Solved</option>
+                    <option value="cant_solve">Can't Solve</option>
+                  </select>
+                </div>
+                <input 
+                  type="text" 
+                  placeholder="Optional comment..." 
+                  className="w-full p-1.5 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                  value={problemSolving.comment}
+                  onChange={(e) => setProblemSolving({...problemSolving, comment: e.target.value})}
+                />
+              </div>
+            </section>
+          )}
 
           {/* Interpersonal Skills */}
           <section className="bg-white dark:bg-gray-800 rounded-xl p-3 shadow-sm border border-gray-100 dark:border-gray-700 shrink-0">
