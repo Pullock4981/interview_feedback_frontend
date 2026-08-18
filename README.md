@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# NexView Frontend
+
+This is the Next.js frontend application for NexView - the Interview Feedback Management System.
+
+## Features
+- **Dashboard**: Overview of interviews and students.
+- **Interviews Management**: Start, monitor, and submit comprehensive interview feedback.
+- **Students Management**: Import and manage student lists using Google Sheets or manually.
+- **Question Bank**: Configure course templates and question banks.
+- **Dark Mode**: Fully supported dark/light theme toggle.
+
+## Tech Stack
+- [Next.js](https://nextjs.org/) (React framework)
+- [Tailwind CSS](https://tailwindcss.com/) (Styling)
+- [Lucide React](https://lucide.dev/) (Icons)
+- [SweetAlert2](https://sweetalert2.github.io/) (Popups and Notifications)
 
 ## Getting Started
 
-First, run the development server:
+First, make sure you have your environment variables set up. Copy `.env.example` to `.env.local`:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Edit `.env.local` to point to your backend API.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Then, install dependencies and run the development server:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+npm run dev
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This frontend is optimized for deployment on [Vercel](https://vercel.com/). Connect your GitHub repository to Vercel and it will automatically build and deploy the Next.js app. Make sure to set `NEXT_PUBLIC_API_URL` in the Vercel Environment Variables settings.
