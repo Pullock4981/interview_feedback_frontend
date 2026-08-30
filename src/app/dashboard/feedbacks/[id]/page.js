@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Check, X, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import PremiumSkeleton from "@/components/PremiumSkeleton";
 
 const CATEGORIES = [
   { id: 'htmlcss', label: 'HTML & CSS' },
@@ -17,6 +18,7 @@ export default function ViewFeedback() {
   const { id: interviewId } = useParams();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
     if (!interviewId) return;
@@ -36,9 +38,12 @@ export default function ViewFeedback() {
             feedback: fData.data.feedback,
             studentInfo: iData.data.student
           });
+        } else {
+          setErrorMsg(fData.error?.message || iData.error?.message || fData.message || iData.message || "Failed to load data");
         }
       } catch (err) {
         console.error(err);
+        setErrorMsg(err.message || "Something went wrong");
       } finally {
         setLoading(false);
       }
@@ -46,8 +51,8 @@ export default function ViewFeedback() {
     fetchData();
   }, [interviewId]);
 
-  if (loading) return <div className="p-8 text-center text-gray-500">Loading feedback...</div>;
-  if (!data) return <div className="p-8 text-center text-red-500">Failed to load feedback</div>;
+  if (loading) return <PremiumSkeleton type="interview" />;
+  if (errorMsg || !data) return <div className="p-8 text-center text-red-500">{errorMsg || "Failed to load feedback"}</div>;
 
   const { feedback, studentInfo } = data;
   const techEval = feedback.technicalEvaluation || {};

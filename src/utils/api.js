@@ -9,5 +9,15 @@ export async function fetchWithAuth(url, options = {}) {
     "Authorization": `Bearer ${token}`
   };
 
-  return fetch(url, { ...options, headers, credentials: 'include' });
+  const response = await fetch(url, { ...options, headers, credentials: 'include' });
+
+  if (response.status === 401) {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/login?expired=true";
+    }
+  }
+
+  return response;
 }

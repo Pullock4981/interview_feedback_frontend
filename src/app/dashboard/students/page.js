@@ -2,16 +2,18 @@
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
 import { fetchWithAuth } from "@/utils/api";
-import { Upload, Search, Filter, CheckCircle2, ChevronDown, ChevronUp, Trash2, Settings, Download, Copy } from "lucide-react";
+import { Upload, Plus, Search, Filter, CheckCircle2, ChevronDown, ChevronUp, Trash2, Settings, Download, Copy, Loader2 } from "lucide-react";
 import Swal from "sweetalert2";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import CourseTemplateModal from "@/components/CourseTemplateModal";
+import PremiumSkeleton from "@/components/PremiumSkeleton";
 
 export default function StudentsPage() {
   const router = useRouter();
   const [interviews, setInterviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [startingInterviewId, setStartingInterviewId] = useState(null);
   const [activeProgramme, setActiveProgramme] = useState(null);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
 
@@ -261,10 +263,12 @@ export default function StudentsPage() {
   const handleStartInterview = async (studentId, existingInterviewId, status) => {
     // If already started or draft saved, just go to the interview page
     if (status === 'Interview Started' || status === 'Draft Saved') {
+      setStartingInterviewId(existingInterviewId);
       return router.push(`/dashboard/interviews/${existingInterviewId}`);
     }
 
     try {
+      setStartingInterviewId(existingInterviewId);
       const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/interviews/${studentId}/start`, {
         method: "POST"
       });
@@ -273,11 +277,14 @@ export default function StudentsPage() {
         const interviewId = data.data.interview._id;
         router.push(`/dashboard/interviews/${interviewId}`);
       } else {
-        Swal.fire('Error', data.message || 'Failed to start interview', 'error');
+        const errorMessage = data.error?.message || data.message || 'Failed to start interview';
+        Swal.fire('Error', errorMessage, 'error');
+        setStartingInterviewId(null);
       }
     } catch (err) {
       console.error(err);
       Swal.fire('Error', 'Something went wrong', 'error');
+      setStartingInterviewId(null);
     }
   };
 
@@ -468,12 +475,12 @@ export default function StudentsPage() {
         </div>
 
         <div className="space-y-4">
-          {loading ? (
-            <div className="p-8 text-center text-gray-500 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">Loading students...</div>
-          ) : interviews.length === 0 ? (
-            <div className="p-8 text-center text-gray-500 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">No students assigned yet.</div>
-          ) : (
-            <>
+          <div className="flex space-x-2 overflow-x-auto pb-2 custom-scrollbar">
+            {loading && Object.keys(groupedInterviews).length === 0 ? (
+              <PremiumSkeleton type="default" rows={1} />
+            ) : Object.keys(groupedInterviews).length === 0 ? (
+              <div className="text-gray-500 italic">No assignments found</div>
+            ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
                 {Object.entries(groupedInterviews).map(([prog, progInterviews]) => (
                   <div 
@@ -492,9 +499,17 @@ export default function StudentsPage() {
                   </div>
                 ))}
               </div>
+            )}
+          </div>
 
-              {activeProgramme && groupedInterviews[activeProgramme] && (
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+          {activeProgramme && groupedInterviews[activeProgramme] && (
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 min-h-[400px]">
+              {loading && Object.keys(groupedInterviews).length > 0 ? (
+                <PremiumSkeleton type="table" rows={6} />
+              ) : !activeProgramme ? (
+                <div className="p-8 text-center text-gray-500 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">No students assigned yet.</div>
+              ) : (
+                <>
                   <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex justify-between items-center">
                     <h3 className="text-md font-bold text-gray-900 dark:text-white">Students in {activeProgramme}</h3>
                     <div className="flex items-center gap-2">
@@ -701,9 +716,17 @@ export default function StudentsPage() {
                               ) : (
                                 <button 
                                   onClick={() => handleStartInterview(intv.student._id, intv._id, intv.status)}
-                                  className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-bold text-white bg-primary hover:bg-primary-hover rounded-md shadow-sm transition-colors cursor-pointer"
+                                  disabled={startingInterviewId === intv._id}
+                                  className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-bold text-white bg-primary hover:bg-primary-hover rounded-md shadow-sm transition-colors cursor-pointer disabled:opacity-70"
                                 >
-                                  {intv.status === 'Assigned' ? 'Start Interview' : 'Continue Interview'}
+                                  {startingInterviewId === intv._id ? (
+                                    <span className="flex items-center gap-1">
+                                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                      Loading...
+                                    </span>
+                                  ) : (
+                                    intv.status === 'Assigned' ? 'Start Interview' : 'Continue Interview'
+                                  )}
                                 </button>
                               )}
                               <button
@@ -719,9 +742,9 @@ export default function StudentsPage() {
                       </tbody>
                     </table>
                   </div>
-                </div>
+                </>
               )}
-            </>
+            </div>
           )}
         </div>
       </div>

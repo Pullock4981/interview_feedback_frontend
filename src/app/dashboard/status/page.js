@@ -5,6 +5,7 @@ import { Search, Filter, CheckCircle2, ClipboardList, Download, Copy } from "luc
 import Swal from "sweetalert2";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import PremiumSkeleton from "@/components/PremiumSkeleton";
 
 export default function StatusList() {
   const [interviews, setInterviews] = useState([]);
@@ -173,7 +174,7 @@ export default function StatusList() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="4" className="px-6 py-8 text-center text-gray-500">Loading interviews...</td></tr>
+                <tr><td colSpan="4" className="px-6 py-8"><PremiumSkeleton type="table" rows={4} /></td></tr>
               ) : interviews.length === 0 ? (
                 <tr><td colSpan="4" className="px-6 py-8 text-center text-gray-500">No interviews found.</td></tr>
               ) : (
@@ -189,7 +190,7 @@ export default function StatusList() {
                     <td className="px-6 py-4">
                       <div className="flex gap-2">
                         <Link
-                          href={`/dashboard/feedbacks/${intv.feedback?._id || intv._id}`}
+                          href={`/dashboard/feedbacks/${intv._id}`}
                           className="flex items-center gap-1 bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
                         >
                           View Feedback

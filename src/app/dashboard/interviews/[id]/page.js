@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import { Check, X, Trash2, Shield, CircleDashed } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import questionBank from "@/data/questions.json";
+import PremiumSkeleton from "@/components/PremiumSkeleton";
 
 const INITIAL_CATEGORIES = [
   { id: 'htmlcss', label: 'HTML & CSS', suggestions: ['Semantic HTML', 'Flexbox', 'Grid', 'Responsive Design', 'CSS Variables'] },
@@ -428,7 +429,7 @@ export default function InterviewFeedback() {
     });
   };
 
-  if (loading) return <div className="p-8 text-center text-gray-500">Loading interview data...</div>;
+  if (loading) return <PremiumSkeleton type="interview" />;
 
   const isReadOnly = user?.role === "manager" || feedbackStatus === "final";
 

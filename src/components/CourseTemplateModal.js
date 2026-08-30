@@ -97,10 +97,7 @@ export default function CourseTemplateModal({ course, onClose, onSaved }) {
     const lines = rawTopic.split('\n').map(l => l.trim()).filter(Boolean);
     
     lines.forEach(line => {
-      if ((line.match(/[?.]/g) || []).length > 1) {
-        const parts = line.split(/(?<=[?.])/).map(p => p.trim()).filter(Boolean);
-        parts.forEach(p => parsedTopics.push(p));
-      } else if (line.includes(',') && !line.includes('?')) {
+      if (line.includes(',') && !line.includes('?')) {
         const parts = line.split(',').map(p => p.trim()).filter(Boolean);
         parsedTopics.push(...parts);
       } else {
