@@ -97,12 +97,17 @@ export default function CourseTemplateModal({ course, onClose, onSaved }) {
     const lines = rawTopic.split('\n').map(l => l.trim()).filter(Boolean);
     
     lines.forEach(line => {
-      if (line.includes(',') && !line.includes('?')) {
-        const parts = line.split(',').map(p => p.trim()).filter(Boolean);
-        parsedTopics.push(...parts);
-      } else {
-        parsedTopics.push(line);
-      }
+      // Split by space following a period or question mark to preserve the punctuation
+      const parts = line.split(/(?<=[?.])\s+/).map(p => p.trim()).filter(Boolean);
+      
+      parts.forEach(part => {
+        if (part.includes(',') && !part.includes('?')) {
+          const subParts = part.split(',').map(p => p.trim()).filter(Boolean);
+          parsedTopics.push(...subParts);
+        } else {
+          parsedTopics.push(part);
+        }
+      });
     });
     
     setCategories(categories.map(c => {
