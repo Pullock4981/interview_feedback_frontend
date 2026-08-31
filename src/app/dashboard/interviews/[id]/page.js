@@ -324,9 +324,9 @@ export default function InterviewFeedback() {
       showCancelButton: true,
       confirmButtonColor: '#5c2d91',
       cancelButtonColor: '#ef4444',
-      confirmButtonText: 'Yes, submit it!'
-    }).then(async (result) => {
-      if (result.isConfirmed) {
+      confirmButtonText: 'Yes, submit it!',
+      showLoaderOnConfirm: true,
+      preConfirm: async () => {
         try {
           const payload = buildPayload();
           const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/feedback/${interviewId}/submit`, {
@@ -335,16 +335,21 @@ export default function InterviewFeedback() {
             body: JSON.stringify(payload)
           });
           const data = await res.json();
-          if (data.success) {
-            Swal.fire('Submitted!', 'Interview feedback finalized.', 'success').then(() => {
-              router.push('/dashboard/students');
-            });
-          } else {
-            Swal.fire('Error', data.error?.message || data.message || 'Failed to submit', 'error');
+          if (!data.success) {
+            throw new Error(data.error?.message || data.message || 'Failed to submit');
           }
-        } catch (err) {
-          Swal.fire('Error', 'Something went wrong', 'error');
+          return data;
+        } catch (error) {
+          Swal.showValidationMessage(`Error: ${error.message}`);
+          return false;
         }
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire('Submitted!', 'Interview feedback finalized.', 'success').then(() => {
+          router.push('/dashboard/students');
+        });
       }
     });
   };
@@ -671,7 +676,7 @@ export default function InterviewFeedback() {
                     onChange={(e) => selectedLanguage === "Bengali" ? setBengaliLevel(e.target.value) : setEnglishLevel(e.target.value)}
                     className="w-full p-1.5 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
                   >
-                    <option value="Excellent">Excellent</option><option value="Good">Good</option><option value="Average">Average</option><option value="Poor">Poor</option>
+                    <option value="Excellent">5 - Excellent</option><option value="Good">4 - Good</option><option value="Average">3 - Average</option><option value="Below Average">2 - Below Average</option><option value="Poor">1 - Poor</option>
                   </select>
                 </div>
                 <div>
@@ -722,11 +727,11 @@ export default function InterviewFeedback() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium mb-1">Eye Contact</label>
-                  <select value={eyeContact} onChange={(e) => setEyeContact(e.target.value)} className="w-full p-1.5 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600"><option value="Excellent">Excellent</option><option value="Good">Good</option><option value="Average">Average</option><option value="Poor">Poor</option></select>
+                  <select value={eyeContact} onChange={(e) => setEyeContact(e.target.value)} className="w-full p-1.5 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600"><option value="Excellent">5 - Excellent</option><option value="Good">4 - Good</option><option value="Average">3 - Average</option><option value="Below Average">2 - Below Average</option><option value="Poor">1 - Poor</option></select>
                 </div>
                 <div>
                   <label className="block text-xs font-medium mb-1">Background</label>
-                  <select value={backgroundLevel} onChange={(e) => setBackgroundLevel(e.target.value)} className="w-full p-1.5 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600"><option value="Excellent">Excellent</option><option value="Good">Good</option><option value="Average">Average</option><option value="Poor">Poor</option></select>
+                  <select value={backgroundLevel} onChange={(e) => setBackgroundLevel(e.target.value)} className="w-full p-1.5 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600"><option value="Excellent">5 - Excellent</option><option value="Good">4 - Good</option><option value="Average">3 - Average</option><option value="Below Average">2 - Below Average</option><option value="Poor">1 - Poor</option></select>
                 </div>
                 <div className="col-span-2">
                   <input type="text" value={cameraComment} onChange={(e) => setCameraComment(e.target.value)} placeholder="Optional comment on environment..." className="w-full p-1.5 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600" />
@@ -777,10 +782,11 @@ export default function InterviewFeedback() {
                   value={interpersonal.status}
                   onChange={(e) => setInterpersonal({...interpersonal, status: e.target.value})}
                 >
-                  <option value="Excellent">Excellent</option>
-                  <option value="Good">Good</option>
-                  <option value="Average">Average</option>
-                  <option value="Poor">Poor</option>
+                  <option value="Excellent">5 - Excellent</option>
+                  <option value="Good">4 - Good</option>
+                  <option value="Average">3 - Average</option>
+                  <option value="Below Average">2 - Below Average</option>
+                  <option value="Poor">1 - Poor</option>
                 </select>
               </div>
               <input 
