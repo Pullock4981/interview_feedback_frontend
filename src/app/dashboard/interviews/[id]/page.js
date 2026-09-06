@@ -277,7 +277,14 @@ export default function InterviewFeedback() {
     });
 
     const formatList = (list, color, title, icon) => {
-      if (list.length === 0) return '';
+      if (list.length === 0) {
+        return `
+          <div style="margin-top: 10px;">
+            <p style="color: ${color}; margin-bottom: 4px; font-weight: bold; opacity: 0.7;">${icon} ${title} (0):</p>
+            <p style="font-size: 13px; color: #888; margin: 0 0 0 20px; font-style: italic;">None</p>
+          </div>
+        `;
+      }
       return `
         <div style="margin-top: 10px;">
           <p style="color: ${color}; margin-bottom: 4px; font-weight: bold;">${icon} ${title} (${list.length}):</p>

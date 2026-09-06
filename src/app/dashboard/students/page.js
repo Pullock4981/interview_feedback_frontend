@@ -54,6 +54,10 @@ export default function StudentsPage() {
 
   useEffect(() => {
     fetchInterviews();
+    
+    const onFocus = () => fetchInterviews();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
   }, []);
 
   const handleCreateInterview = () => {
