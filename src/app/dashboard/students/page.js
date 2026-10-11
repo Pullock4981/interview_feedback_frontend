@@ -67,9 +67,34 @@ export default function StudentsPage() {
         <div class="space-y-4 text-left px-1 mt-2">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Google Sheets Link <span class="text-red-500">*</span></label>
-            <input id="swal-input-url" class="swal2-input !m-0 !w-full !text-sm" placeholder="https://docs.google.com/spreadsheets/d/.../edit" type="url" />
-            <p class="text-xs text-gray-500 mt-1">Must be 'Anyone with the link can view'</p>
+            <input id="swal-input-url" class="swal2-input !m-0 !w-full !text-sm" placeholder="https://docs.google.com/spreadsheets/d/.../edit#gid=..." type="url" />
+            <div id="swal-url-hint" class="text-xs text-gray-500 mt-1">Must be 'Anyone with the link can view'</div>
           </div>
+
+          <!-- Specific Tab Selector Section -->
+          <div class="p-3 bg-purple-50/70 border border-purple-200 rounded-lg">
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="block text-xs font-bold text-purple-900">
+                Specific Sheet Tab <span class="text-gray-500 font-normal">(নির্দিষ্ট ট্যাব ফিল্টার)</span>
+              </label>
+              <span id="swal-tab-status" class="text-[11px] font-semibold text-purple-700"></span>
+            </div>
+            
+            <div id="swal-tab-select-container" style="display: none;" class="mb-2">
+              <label class="block text-[11px] text-gray-600 mb-1 font-medium">Select Tab from Sheet:</label>
+              <select id="swal-input-tab-select" class="swal2-select !m-0 !w-full !text-xs !p-2 !border-purple-300 !rounded-md !bg-white">
+                <option value="">-- Choose Tab from Dropdown --</option>
+              </select>
+            </div>
+
+            <div>
+              <input id="swal-input-tab-name" class="swal2-input !m-0 !w-full !text-xs !p-2" placeholder="Or type tab name (e.g. Batch 10, Sheet2)..." type="text" />
+              <p class="text-[11px] text-gray-500 mt-1 leading-normal">
+                💡 লিংকে <b>#gid=...</b> থাকলে বা এখানে ট্যাবের নাম দিলে শুধুমাত্র ঐ ট্যাবের ডাটাই লোড হবে।
+              </p>
+            </div>
+          </div>
+
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Programme Name <span class="text-red-500">*</span></label>
             <input id="swal-input-course" class="swal2-input !m-0 !w-full !text-sm" placeholder="e.g. Web Development" type="text" />
@@ -95,11 +120,83 @@ export default function StudentsPage() {
       confirmButtonColor: '#5c2d91',
       confirmButtonText: 'Create Interviews',
       showLoaderOnConfirm: true,
+      didOpen: () => {
+        const urlInput = document.getElementById('swal-input-url');
+        const tabSelectContainer = document.getElementById('swal-tab-select-container');
+        const tabSelect = document.getElementById('swal-input-tab-select');
+        const tabNameInput = document.getElementById('swal-input-tab-name');
+        const tabStatus = document.getElementById('swal-tab-status');
+        const hintEl = document.getElementById('swal-url-hint');
+
+        let lastCheckedId = '';
+
+        const checkUrl = async () => {
+          const val = urlInput?.value?.trim() || '';
+          if (!val) {
+            if (hintEl) hintEl.textContent = "Must be 'Anyone with the link can view'";
+            if (tabStatus) tabStatus.textContent = "";
+            return;
+          }
+
+          const gidMatch = val.match(/[#&?]gid=([0-9]+)/);
+          const sheetMatch = val.match(/\/d\/([a-zA-Z0-9-_]+)/);
+
+          if (gidMatch && gidMatch[1]) {
+            if (tabStatus) tabStatus.innerHTML = `<span class="text-green-600 font-bold">✓ GID Detected (#gid=${gidMatch[1]})</span>`;
+          }
+
+          if (sheetMatch && sheetMatch[1]) {
+            const sheetId = sheetMatch[1];
+            if (sheetId !== lastCheckedId) {
+              lastCheckedId = sheetId;
+              if (tabStatus && !gidMatch) tabStatus.innerHTML = `<span class="text-purple-600">🔍 Fetching tabs...</span>`;
+              try {
+                const editRes = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/edit`);
+                if (editRes.ok) {
+                  const html = await editRes.text();
+                  const re = /docs-sheet-tab-caption">([^<]+)<\/div>/g;
+                  const foundTabs = [];
+                  let m;
+                  while ((m = re.exec(html)) !== null) {
+                    if (m[1] && !foundTabs.includes(m[1])) foundTabs.push(m[1]);
+                  }
+
+                  if (foundTabs.length > 0 && tabSelect && tabSelectContainer) {
+                    tabSelect.innerHTML = `<option value="">-- Choose Tab (${foundTabs.length} tabs found) --</option>` +
+                      foundTabs.map(t => `<option value="${t.replace(/"/g, '&quot;')}">${t}</option>`).join('');
+                    tabSelectContainer.style.display = 'block';
+                    if (tabStatus) tabStatus.innerHTML = `<span class="text-green-600 font-semibold">✓ ${foundTabs.length} tabs found!</span>`;
+                  }
+                }
+              } catch (e) {
+                // Ignore fetch error, manual tab name input remains available
+              }
+            }
+          }
+        };
+
+        if (urlInput) {
+          urlInput.addEventListener('input', checkUrl);
+          urlInput.addEventListener('paste', () => setTimeout(checkUrl, 100));
+          if (urlInput.value) checkUrl();
+        }
+
+        if (tabSelect && tabNameInput) {
+          tabSelect.addEventListener('change', () => {
+            if (tabSelect.value) {
+              tabNameInput.value = tabSelect.value;
+            }
+          });
+        }
+      },
       preConfirm: async () => {
-        const url = document.getElementById('swal-input-url').value;
-        const courseStr = document.getElementById('swal-input-course').value;
-        const levelStr = document.getElementById('swal-input-level').value;
-        const batchStr = document.getElementById('swal-input-batch').value;
+        const url = document.getElementById('swal-input-url')?.value?.trim() || '';
+        const tabSelect = document.getElementById('swal-input-tab-select')?.value?.trim() || '';
+        const tabNameInput = document.getElementById('swal-input-tab-name')?.value?.trim() || '';
+        const chosenTabName = tabNameInput || tabSelect;
+        const courseStr = document.getElementById('swal-input-course')?.value?.trim() || '';
+        const levelStr = document.getElementById('swal-input-level')?.value || '';
+        const batchStr = document.getElementById('swal-input-batch')?.value?.trim() || '';
 
         if (!url || !courseStr) {
           Swal.showValidationMessage('Please fill all required fields (Link and Programme Name)');
@@ -107,25 +204,39 @@ export default function StudentsPage() {
         }
 
         try {
-          // Try to extract the Sheet ID from a standard Google Sheets URL
+          // Extract Sheet ID from Google Sheets URL
           const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
           const gidMatch = url.match(/[#&?]gid=([0-9]+)/);
           let fetchUrl = url;
+
           if (match && match[1]) {
-            // Convert standard URL to CSV export URL
-            fetchUrl = `https://docs.google.com/spreadsheets/d/${match[1]}/export?format=csv`;
-            if (gidMatch && gidMatch[1]) {
-              fetchUrl += `&gid=${gidMatch[1]}`;
+            const sheetId = match[1];
+            if (chosenTabName) {
+              // If tab name is pure numeric gid
+              if (/^\d{6,}$/.test(chosenTabName)) {
+                fetchUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${chosenTabName}`;
+              } else {
+                fetchUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(chosenTabName)}`;
+              }
+            } else if (gidMatch && gidMatch[1]) {
+              fetchUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gidMatch[1]}`;
+            } else {
+              fetchUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
             }
           }
 
           const response = await fetch(fetchUrl);
-          if (!response.ok) throw new Error("Could not fetch the sheet. Make sure it is public (Anyone with the link can view).");
+          if (!response.ok) {
+            if (chosenTabName) {
+              throw new Error(`Could not fetch tab "${chosenTabName}". Make sure the tab name is spelled correctly and the sheet is public.`);
+            }
+            throw new Error("Could not fetch the sheet. Make sure it is public (Anyone with the link can view).");
+          }
           
           const csvData = await response.text();
           
           // If the response is an HTML page (like a Google Login page), it's not public
-          if (csvData.trim().startsWith('<!DOCTYPE html>')) {
+          if (csvData.trim().startsWith('<!DOCTYPE html>') || csvData.includes('accounts.google.com')) {
             throw new Error("The sheet is private. Please change access to 'Anyone with the link can view'.");
           }
           
