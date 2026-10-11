@@ -360,7 +360,7 @@ export default function StudentsPage() {
       'Student Name', 'Email', 'Phone', 'Course', 'Slot', 'Status', 
       'Interpersonal Skills', 'Language Proficiency', 'Camera & Environment',
       'Technical (Solved)', 'Technical (Partially Solved)', "Technical (Can't Solve)",
-      'Problem Solving', 'Final Recommendation', 'Final Comment'
+      'Problem Solving', 'Final Recommendation', 'General Feedback / Final Comments'
     ];
     
     const rows = groupedInterviews[progName].map(intv => {
@@ -375,7 +375,7 @@ export default function StudentsPage() {
       let cameraStr = fb.cameraOn ? `On (Eye: ${fb.eyeContact || 'N/A'}, BG: ${fb.backgroundLevel || 'N/A'})` : 'Off';
       if (fb.cameraComment) cameraStr += ` - ${fb.cameraComment}`;
       
-      // Formatting Technical
+      // Formatting Technical into 3 parts with their statuses
       const solved = [];
       const partial = [];
       const cant = [];
@@ -384,14 +384,47 @@ export default function StudentsPage() {
         Object.entries(fb.technicalEvaluation).forEach(([catKey, catData]) => {
           if (catData.topics && Array.isArray(catData.topics)) {
             catData.topics.forEach(t => {
-              const itemStr = `[${catKey.toUpperCase()}] ${t.name}`;
-              if (t.status === 'solved') solved.push(itemStr);
-              else if (t.status === 'partially_solved') partial.push(itemStr);
-              else if (t.status === 'cant_solve') cant.push(itemStr);
+              if (t.status === 'solved' || t.status === 'pass') solved.push(t.name);
+              else if (t.status === 'partially_solved') partial.push(t.name);
+              else if (t.status === 'cant_solve' || t.status === 'fail') cant.push(t.name);
             });
           }
         });
       }
+
+      const totalEval = solved.length + partial.length + cant.length;
+
+      const solvedText = solved.length > 0 
+        ? `Solved (${solved.length}):\n` + solved.map((q, i) => `${i + 1}. ${q}`).join('\n')
+        : 'Solved (0): None';
+
+      const partialText = partial.length > 0 
+        ? `Partially Solved (${partial.length}):\n` + partial.map((q, i) => `${i + 1}. ${q}`).join('\n')
+        : 'Partially Solved (0): None';
+
+      const cantText = cant.length > 0 
+        ? `Can't Solve (${cant.length}):\n` + cant.map((q, i) => `${i + 1}. ${q}`).join('\n')
+        : "Can't Solve (0): None";
+
+      // Auto-generate General Feedback based on question statuses
+      let autoGeneralFeedback = "";
+      if (totalEval > 0) {
+        const pct = Math.round((solved.length / totalEval) * 100);
+        autoGeneralFeedback = `Technical Evaluation: ${totalEval} questions evaluated — ${solved.length} Solved (${pct}%), ${partial.length} Partially Solved, ${cant.length} Can't Solve.`;
+        if (solved.length >= totalEval * 0.75 && cant.length === 0) {
+          autoGeneralFeedback += " Strong conceptual clarity and technical execution.";
+        } else if (solved.length + partial.length >= totalEval * 0.6) {
+          autoGeneralFeedback += " Satisfactory foundation; needs review on partial topics.";
+        } else {
+          autoGeneralFeedback += " Significant preparation needed on fundamental concepts.";
+        }
+      }
+
+      const combinedFeedback = fb.finalComment 
+        ? (autoGeneralFeedback && !fb.finalComment.includes(autoGeneralFeedback) 
+            ? `${autoGeneralFeedback}\n\nMentor Notes: ${fb.finalComment}` 
+            : fb.finalComment)
+        : (autoGeneralFeedback || 'N/A');
       
       return [
         intv.student?.name || '',
@@ -403,12 +436,12 @@ export default function StudentsPage() {
         `${fb.interpersonalLevel || 'N/A'} ${fb.interpersonalComment ? '- ' + fb.interpersonalComment : ''}`,
         languageStr.replace(/ \| $/, ''),
         cameraStr,
-        solved.join('\n'),
-        partial.join('\n'),
-        cant.join('\n'),
+        solvedText,
+        partialText,
+        cantText,
         `${(fb.problemSolvingLevel || '').replace('_', ' ')} ${fb.problemSolvingComment ? '- ' + fb.problemSolvingComment : ''}`,
         fb.finalRecommendation || '',
-        fb.finalComment || ''
+        combinedFeedback
       ];
     });
 
@@ -434,8 +467,19 @@ export default function StudentsPage() {
     const { headers, rows } = getFormattedRows(progName);
     if (!headers.length) return;
     
-    // Create TSV for clipboard
-    const tsvContent = [headers.join('\t'), ...rows.map(r => r.map(c => (c || '').toString().replace(/\n/g, ' ')).join('\t'))].join('\n');
+    // Proper TSV cell escaping so multiline cells paste intact into Google Sheets
+    const escapeTsvCell = (val) => {
+      const s = (val || '').toString();
+      if (s.includes('\t') || s.includes('\n') || s.includes('"')) {
+        return `"${s.replace(/"/g, '""')}"`;
+      }
+      return s;
+    };
+
+    const tsvContent = [
+      headers.map(escapeTsvCell).join('\t'),
+      ...rows.map(r => r.map(escapeTsvCell).join('\t'))
+    ].join('\n');
 
     navigator.clipboard.writeText(tsvContent).then(() => {
       Swal.fire('Copied!', 'Data copied to clipboard. You can now paste it directly into an empty Google Sheet.', 'success');

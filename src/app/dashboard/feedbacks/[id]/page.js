@@ -195,6 +195,21 @@ export default function ViewFeedback() {
                   {solvedQuestions.length === 0 && partiallySolvedQuestions.length === 0 && cantSolveQuestions.length === 0 && (
                     <p className="text-sm text-gray-500 italic text-center py-8">No technical questions evaluated.</p>
                   )}
+
+                  {/* Section Notes / Custom Feedback */}
+                  {Object.entries(techEval).some(([_, d]) => d?.comment?.trim()) && (
+                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                      <h3 className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Section Notes / Custom Feedback:</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {Object.entries(techEval).filter(([_, d]) => d?.comment?.trim()).map(([cId, d]) => (
+                          <div key={cId} className="p-3 rounded-lg bg-gray-50 dark:bg-gray-700/40 border border-gray-200 dark:border-gray-700 text-xs">
+                            <span className="font-bold text-primary block mb-1">{catMap[cId] || cId}:</span>
+                            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{d.comment}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </>
               );
             })()}
