@@ -212,7 +212,7 @@ export default function InterviewsList() {
               placeholder="Search by student, email, slot..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 w-full border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
+              className="pl-9 pr-4 py-2 w-full border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
             />
           </div>
 
@@ -221,7 +221,7 @@ export default function InterviewsList() {
             <select
               value={filterCourse}
               onChange={(e) => setFilterCourse(e.target.value)}
-              className="px-3.5 py-2 w-full sm:w-auto border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 text-sm focus:ring-2 focus:ring-primary focus:outline-none cursor-pointer"
+              className="px-3.5 py-2 w-full sm:w-auto border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary focus:outline-none cursor-pointer"
             >
               <option value="all">All Courses</option>
               {uniqueCourses.map(course => (

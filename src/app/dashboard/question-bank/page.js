@@ -197,7 +197,7 @@ export default function QuestionBankPage() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* List of Banks */}
         <div className="lg:col-span-1 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden h-[calc(100vh-12rem)] flex flex-col">
-          <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 font-bold">
+          <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 font-bold text-gray-900 dark:text-white">
             Your Libraries
           </div>
           <div className="flex-1 overflow-y-auto p-2 space-y-2">
@@ -207,7 +207,7 @@ export default function QuestionBankPage() {
               banks.map(bank => (
                 <div 
                   key={bank._id} 
-                  className={`p-3 rounded-lg border cursor-pointer transition-colors flex justify-between items-center group ${activeBank?._id === bank._id ? 'bg-primary/10 border-primary text-primary' : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                  className={`p-3 rounded-lg border cursor-pointer transition-colors flex justify-between items-center group ${activeBank?._id === bank._id ? 'bg-primary/10 border-primary text-primary' : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200'}`}
                   onClick={() => handleEdit(bank)}
                 >
                   <span className="font-semibold text-sm truncate pr-2">{bank.title}</span>
@@ -232,7 +232,7 @@ export default function QuestionBankPage() {
                   type="text" 
                   value={editTitle} 
                   onChange={(e) => setEditTitle(e.target.value)}
-                  className="font-bold text-lg bg-transparent border-b-2 border-transparent hover:border-gray-300 focus:border-primary focus:outline-none transition-colors px-1 py-0.5"
+                  className="font-bold text-lg text-gray-900 dark:text-white bg-transparent border-b-2 border-transparent hover:border-gray-300 focus:border-primary focus:outline-none transition-colors px-1 py-0.5"
                 />
                 <div className="flex space-x-2">
                   <button onClick={() => setActiveBank(null)} className="px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md transition-colors">Close</button>

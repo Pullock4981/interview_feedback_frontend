@@ -637,7 +637,7 @@ export default function StudentsPage() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search programmes..." 
-                className="pl-10 pr-4 py-2 w-full border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900 text-sm focus:ring-2 focus:ring-primary focus:outline-none transition-all"
+                className="pl-10 pr-4 py-2 w-full border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white dark:placeholder-gray-400 text-sm focus:ring-2 focus:ring-primary focus:outline-none transition-all"
               />
             </div>
             <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-3">
@@ -768,7 +768,7 @@ export default function StudentsPage() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search students by name, email, slot, status..." 
-                className="pl-10 pr-4 py-2 w-full border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900 text-sm focus:ring-2 focus:ring-primary focus:outline-none transition-all"
+                className="pl-10 pr-4 py-2 w-full border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white dark:placeholder-gray-400 text-sm focus:ring-2 focus:ring-primary focus:outline-none transition-all"
               />
             </div>
             {searchTerm && (

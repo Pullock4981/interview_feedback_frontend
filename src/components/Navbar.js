@@ -27,7 +27,7 @@ export function Navbar() {
           <input
             type="text"
             placeholder="Search..."
-            className="pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-full text-sm focus:ring-2 focus:ring-primary focus:outline-none"
+            className="pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 border border-transparent dark:border-gray-700/60 rounded-full text-sm focus:ring-2 focus:ring-primary focus:outline-none transition-colors"
           />
         </div>
 
