@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
 import { fetchWithAuth } from "@/utils/api";
-import { Upload, Plus, Search, Filter, CheckCircle2, ChevronDown, ChevronUp, Trash2, Settings, Download, Copy, Loader2 } from "lucide-react";
+import { Upload, Plus, Search, Filter, CheckCircle2, ChevronDown, ChevronUp, Trash2, Settings, Download, Copy, Loader2, ArrowLeft } from "lucide-react";
 import Swal from "sweetalert2";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,6 +16,7 @@ export default function StudentsPage() {
   const [startingInterviewId, setStartingInterviewId] = useState(null);
   const [activeProgramme, setActiveProgramme] = useState(null);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchInterviews = async () => {
     try {
@@ -31,18 +32,6 @@ export default function StudentsPage() {
     }
   };
 
-  // Automatically select the first programme if none is selected and data is available
-  useEffect(() => {
-    if (!loading && interviews.length > 0 && !activeProgramme) {
-      const progs = Array.from(new Set(interviews.map(i => {
-        let p = i.course;
-        if (!p || p === 'N/A') p = i.student?.course || 'Unassigned Programme';
-        return p;
-      })));
-      if (progs.length > 0) setActiveProgramme(progs[0]);
-    }
-  }, [interviews, loading, activeProgramme]);
-
   const groupedInterviews = interviews.reduce((acc, intv) => {
     const prog = (intv.course && intv.course !== 'N/A') 
       ? intv.course 
@@ -51,6 +40,25 @@ export default function StudentsPage() {
     acc[prog].push(intv);
     return acc;
   }, {});
+
+  const currentProgrammeInterviews = activeProgramme ? (groupedInterviews[activeProgramme] || []) : [];
+
+  const filteredStudents = currentProgrammeInterviews.filter(intv => {
+    if (!searchTerm.trim()) return true;
+    const term = searchTerm.toLowerCase().trim();
+    const name = (intv.student?.name || '').toLowerCase();
+    const email = (intv.student?.email || '').toLowerCase();
+    const phone = (intv.student?.phone || '').toLowerCase();
+    const status = (intv.status || '').toLowerCase();
+    const slot = (intv.student?.slot || intv.batch || intv.student?.batch || '').toLowerCase();
+    return name.includes(term) || email.includes(term) || phone.includes(term) || status.includes(term) || slot.includes(term);
+  });
+
+  const filteredProgrammes = Object.entries(groupedInterviews).filter(([prog]) => {
+    if (!searchTerm.trim()) return true;
+    const term = searchTerm.toLowerCase().trim();
+    return prog.toLowerCase().includes(term);
+  });
 
   useEffect(() => {
     fetchInterviews();
@@ -617,296 +625,365 @@ export default function StudentsPage() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
-        <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row gap-4 items-center justify-between">
-          <div className="relative w-full sm:max-w-xs">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input 
-              type="text" 
-              placeholder="Search students..." 
-              className="pl-9 pr-4 py-2 w-full border rounded-lg bg-gray-50 dark:bg-gray-900 dark:border-gray-700 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
-            />
-          </div>
-          <button className="flex items-center space-x-2 px-4 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-sm font-medium">
-            <Filter className="w-4 h-4" />
-            <span>Filter</span>
-          </button>
-        </div>
-
+      {/* View 1: When no programme is clicked -> Normally show all programme cards */}
+      {!activeProgramme ? (
         <div className="space-y-4">
-          <div className="flex space-x-2 overflow-x-auto pb-2 custom-scrollbar">
-            {loading && Object.keys(groupedInterviews).length === 0 ? (
-              <PremiumSkeleton type="default" rows={1} />
-            ) : Object.keys(groupedInterviews).length === 0 ? (
-              <div className="text-gray-500 italic">No assignments found</div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
-                {Object.entries(groupedInterviews).map(([prog, progInterviews]) => (
+          {/* Overview Search Bar & Counter */}
+          <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div className="relative w-full sm:max-w-md">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input 
+                type="text" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search programmes..." 
+                className="pl-10 pr-4 py-2 w-full border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900 text-sm focus:ring-2 focus:ring-primary focus:outline-none transition-all"
+              />
+            </div>
+            <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-3">
+              <span><b>{Object.keys(groupedInterviews).length}</b> Programmes</span>
+              <span>•</span>
+              <span><b>{interviews.length}</b> Total Students</span>
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="p-5 rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 animate-pulse h-32" />
+              ))}
+            </div>
+          ) : Object.keys(groupedInterviews).length === 0 ? (
+            <div className="p-12 text-center text-gray-500 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
+              No student programmes found. Click <b>+ Create Interview</b> to upload.
+            </div>
+          ) : filteredProgrammes.length === 0 ? (
+            <div className="p-12 text-center text-gray-500 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
+              No programmes match &quot;{searchTerm}&quot;.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {filteredProgrammes.map(([prog, progInterviews]) => {
+                const completed = progInterviews.filter(i => i.status === 'Completed').length;
+                return (
                   <div 
                     key={prog} 
-                    onClick={() => setActiveProgramme(prog)}
-                    className={`p-5 rounded-2xl cursor-pointer border shadow-sm transition-all ${
-                      activeProgramme === prog 
-                        ? 'border-primary ring-2 ring-primary/20 bg-primary/5 dark:bg-primary/10' 
-                        : 'border-gray-100 dark:border-gray-700 hover:border-primary/50 bg-white dark:bg-gray-800'
-                    }`}
+                    onClick={() => { setActiveProgramme(prog); setSearchTerm(""); }}
+                    className="p-5 rounded-2xl cursor-pointer border border-gray-100 dark:border-gray-700 hover:border-primary hover:shadow-lg dark:hover:border-primary/80 bg-white dark:bg-gray-800 transition-all flex flex-col justify-between group min-h-[135px]"
                   >
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1 truncate" title={prog}>{prog}</h3>
-                    <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1 rounded-full font-medium inline-block">
-                      {progInterviews.length} {progInterviews.length === 1 ? 'student' : 'students'}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {activeProgramme && groupedInterviews[activeProgramme] && (
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 min-h-[400px]">
-              {loading && Object.keys(groupedInterviews).length > 0 ? (
-                <PremiumSkeleton type="table" rows={6} />
-              ) : !activeProgramme ? (
-                <div className="p-8 text-center text-gray-500 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">No students assigned yet.</div>
-              ) : (
-                <>
-                  <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex justify-between items-center">
-                    <h3 className="text-md font-bold text-gray-900 dark:text-white">Students in {activeProgramme}</h3>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setShowTemplateModal(true)}
-                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg text-xs font-bold transition-colors"
-                        title="Configure Form Template"
-                      >
-                        <Settings className="w-3.5 h-3.5" />
-                        <span>Template</span>
-                      </button>
-                      <button
-                        onClick={() => handleCopyForGoogleSheet(activeProgramme)}
-                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
-                        title={`Copy ${activeProgramme} data for Google Sheet`}
-                      >
-                        <Copy className="w-3.5 h-3.5" />
-                        <span>Copy for Google Sheet</span>
-                      </button>
-                      <button
-                        onClick={() => handleDownloadSheet(activeProgramme)}
-                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-green-50 text-green-600 hover:bg-green-600 hover:text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
-                        title={`Download ${activeProgramme} as CSV`}
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                        <span>Download</span>
-                      </button>
-                      <button
-                        onClick={() => handleDeleteCourse(activeProgramme)}
-                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-lg text-xs font-bold transition-colors"
-                        title={`Delete all students in ${activeProgramme}`}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span>Delete List</span>
-                      </button>
+                    <div>
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h3 className="text-base font-bold text-gray-900 dark:text-white line-clamp-2 group-hover:text-primary transition-colors" title={prog}>
+                          {prog}
+                        </h3>
+                        <span className="text-gray-400 group-hover:text-primary group-hover:translate-x-1 transition-all text-sm shrink-0">
+                          →
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-700/60 text-xs">
+                      <span className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2.5 py-1 rounded-full font-semibold">
+                        {progInterviews.length} {progInterviews.length === 1 ? 'student' : 'students'}
+                      </span>
+                      {completed > 0 && (
+                        <span className="text-green-600 dark:text-green-400 font-bold flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          {completed} done
+                        </span>
+                      )}
                     </div>
                   </div>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
-                      <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-300 uppercase text-xs font-bold whitespace-nowrap">
-                        <tr>
-                          <th className="px-6 py-4">Name</th>
-                          <th className="px-6 py-4">Email</th>
-                          <th className="px-6 py-4">Phone</th>
-                          <th className="px-6 py-4">Slot</th>
-                          <th className="px-6 py-4">Status</th>
-                          <th className="px-6 py-4 min-w-[300px]">Feedback Summary</th>
-                          <th className="px-6 py-4 sticky right-0 bg-gray-50 dark:bg-gray-900/50 z-10 border-l dark:border-gray-700 shadow-sm">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {groupedInterviews[activeProgramme].map((intv) => (
-                          <tr key={intv._id} className="border-b last:border-0 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                            <td className="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">
-                              <div className="flex flex-col gap-1">
-                                <span>{intv.student?.name}</span>
-                                {intv.student?.metadata && Object.keys(intv.student.metadata).length > 0 && (
-                                  <div className="flex flex-wrap gap-1 mt-1">
-                                    {Object.entries(intv.student.metadata).map(([k, v]) => (
-                                      <span key={k} className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
-                                        {k}: {v}
-                                      </span>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">{intv.student?.email}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">{intv.student?.phone || 'N/A'}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              {intv.student?.slot ? intv.student.slot : 
-                               (intv.batch && intv.batch !== 'N/A') ? intv.batch : 
-                               (intv.student?.batch && intv.student?.batch !== 'N/A') ? intv.student.batch : 'N/A'}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              {intv.status === 'Completed' ? (
-                                <span className="flex items-center gap-1 text-green-600 font-bold text-xs bg-green-100 px-2 py-1 rounded-md w-max">
-                                  <CheckCircle2 className="w-3.5 h-3.5" /> Completed
-                                </span>
-                              ) : (
-                                <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-md text-xs font-bold w-max block">
-                                  {intv.status}
-                                </span>
-                              )}
-                            </td>
-                            <td className="px-6 py-4 whitespace-normal text-xs min-w-[300px] align-top">
-                              {intv.status === 'Completed' && intv.feedback ? (
-                                <div className="flex flex-col gap-2 p-3 bg-white dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm">
-                                  <div className="grid grid-cols-[100px_1fr] gap-1 border-b border-dashed pb-1.5 border-gray-100 dark:border-gray-800">
-                                    <span className="font-semibold text-gray-500">Interpersonal:</span>
-                                    <span className="font-medium">{intv.feedback.interpersonalLevel || 'N/A'}</span>
-                                  </div>
-                                  
-                                  <div className="grid grid-cols-[100px_1fr] gap-1 border-b border-dashed pb-1.5 border-gray-100 dark:border-gray-800">
-                                    <span className="font-semibold text-gray-500">Language:</span>
-                                    <span className="text-[11px]">
-                                      {intv.feedback.bengaliLevel || intv.feedback.englishLevel 
-                                        ? `${intv.feedback.bengaliLevel ? 'BN: ' + intv.feedback.bengaliLevel : ''} ${intv.feedback.englishLevel ? '| EN: ' + intv.feedback.englishLevel : ''}`
-                                        : 'N/A'}
-                                    </span>
-                                  </div>
-
-                                  <div className="grid grid-cols-[100px_1fr] gap-1 border-b border-dashed pb-1.5 border-gray-100 dark:border-gray-800">
-                                    <span className="font-semibold text-gray-500">Camera:</span>
-                                    <span className="text-[11px]">{intv.feedback.cameraOn ? `On (Eye: ${intv.feedback.eyeContact || '-'}, BG: ${intv.feedback.backgroundLevel || '-'})` : 'Off'}</span>
-                                  </div>
-
-                                  <div className="grid grid-cols-[100px_1fr] gap-1 border-b border-dashed pb-1.5 border-gray-100 dark:border-gray-800">
-                                    <span className="font-semibold text-gray-500">Technical:</span>
-                                    <div className="flex flex-col gap-1.5">
-                                      {(() => {
-                                        const solved = [];
-                                        const partially = [];
-                                        const failed = [];
-                                        
-                                        const catMap = {
-                                          htmlcss: 'HTML & CSS',
-                                          jsts: 'JS & TS',
-                                          reactnext: 'React & Next',
-                                          nodeexpress: 'Node & Express',
-                                          mongodb: 'MongoDB'
-                                        };
-
-                                        if (intv.feedback.technicalEvaluation) {
-                                          Object.entries(intv.feedback.technicalEvaluation).forEach(([catId, cat]) => {
-                                            const label = catMap[catId] || catId.toUpperCase();
-                                            if (cat && cat.topics) {
-                                              cat.topics.forEach(t => {
-                                                const qItem = { name: t.name, label };
-                                                if (t.status === 'pass' || t.status === 'solved') solved.push(qItem);
-                                                else if (t.status === 'partially_solved') partially.push(qItem);
-                                                else if (t.status === 'fail' || t.status === 'cant_solve') failed.push(qItem);
-                                              });
-                                            }
-                                          });
-                                        }
-                                        
-                                        const hasTech = solved.length > 0 || partially.length > 0 || failed.length > 0;
-                                        
-                                        if (!hasTech) return <span className="text-gray-400 italic">None</span>;
-
-                                        return (
-                                          <>
-                                            {solved.map((q, i) => (
-                                              <div key={`s-${i}`} className="flex items-start gap-1 text-[10px] font-medium bg-green-50/70 text-green-800 dark:bg-green-900/20 dark:text-green-300 px-1.5 py-1 rounded border border-green-100 dark:border-green-800/30 leading-snug break-words">
-                                                <span className="mt-[1px] text-green-600">✓</span>
-                                                <span className="shrink-0 font-bold bg-white dark:bg-gray-800 text-green-700 dark:text-green-400 px-1 rounded-sm border border-green-200 dark:border-green-800">{q.label}</span>
-                                                <span>{q.name}</span>
-                                              </div>
-                                            ))}
-                                            {partially.map((q, i) => (
-                                              <div key={`p-${i}`} className="flex items-start gap-1 text-[10px] font-medium bg-orange-50/70 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300 px-1.5 py-1 rounded border border-orange-100 dark:border-orange-800/30 leading-snug break-words">
-                                                <span className="mt-[1px] text-orange-600">~</span>
-                                                <span className="shrink-0 font-bold bg-white dark:bg-gray-800 text-orange-700 dark:text-orange-400 px-1 rounded-sm border border-orange-200 dark:border-orange-800">{q.label}</span>
-                                                <span>{q.name}</span>
-                                              </div>
-                                            ))}
-                                            {failed.map((q, i) => (
-                                              <div key={`f-${i}`} className="flex items-start gap-1 text-[10px] font-medium bg-red-50/70 text-red-800 dark:bg-red-900/20 dark:text-red-300 px-1.5 py-1 rounded border border-red-100 dark:border-red-800/30 leading-snug break-words">
-                                                <span className="mt-[1px] text-red-600">✗</span>
-                                                <span className="shrink-0 font-bold bg-white dark:bg-gray-800 text-red-700 dark:text-red-400 px-1 rounded-sm border border-red-200 dark:border-red-800">{q.label}</span>
-                                                <span>{q.name}</span>
-                                              </div>
-                                            ))}
-                                          </>
-                                        );
-                                      })()}
-                                    </div>
-                                  </div>
-
-                                  <div className="grid grid-cols-[100px_1fr] gap-1 border-b border-dashed pb-1.5 border-gray-100 dark:border-gray-800">
-                                    <span className="font-semibold text-gray-500">Prob Solving:</span>
-                                    <span className="capitalize font-medium">{intv.feedback.problemSolvingLevel ? intv.feedback.problemSolvingLevel.replace("_", " ") : 'N/A'}</span>
-                                  </div>
-
-                                  <div className="grid grid-cols-[100px_1fr] gap-1">
-                                    <span className="font-semibold text-gray-500">Final Rec.:</span>
-                                    <div className="flex flex-col">
-                                      <span className={`font-bold ${
-                                        intv.feedback.finalRecommendation === 'Strongly Recommended (Potential Candidate)' ? 'text-green-600' :
-                                        intv.feedback.finalRecommendation === 'Recommended' ? 'text-primary' :
-                                        intv.feedback.finalRecommendation === 'Need Improvement' ? 'text-orange-500' :
-                                        intv.feedback.finalRecommendation === 'Not Recommended' ? 'text-red-500' : ''
-                                      }`}>{intv.feedback.finalRecommendation || 'N/A'}</span>
-                                      {intv.feedback.finalComment && (
-                                        <span className="text-[10px] italic text-gray-400 mt-1 line-clamp-2" title={intv.feedback.finalComment}>&quot;{intv.feedback.finalComment}&quot;</span>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              ) : (
-                                <span className="text-gray-300 dark:text-gray-600">-</span>
-                              )}
-                            </td>
-
-                            <td className="px-6 py-4 whitespace-nowrap sticky right-0 bg-white dark:bg-gray-800 z-10 border-l dark:border-gray-700 shadow-sm flex items-center gap-2">
-                              {intv.status === 'Completed' ? (
-                                <Link 
-                                  href={`/dashboard/feedbacks/${intv._id}`} 
-                                  className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-bold text-white bg-green-600 hover:bg-green-700 rounded-md shadow-sm transition-colors cursor-pointer"
-                                >
-                                  View Feedback
-                                </Link>
-                              ) : (
-                                <button 
-                                  onClick={() => handleStartInterview(intv.student._id, intv._id, intv.status)}
-                                  disabled={startingInterviewId === intv._id}
-                                  className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-bold text-white bg-primary hover:bg-primary-hover rounded-md shadow-sm transition-colors cursor-pointer disabled:opacity-70"
-                                >
-                                  {startingInterviewId === intv._id ? (
-                                    <span className="flex items-center gap-1">
-                                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                      Loading...
-                                    </span>
-                                  ) : (
-                                    intv.status === 'Assigned' ? 'Start Interview' : 'Continue Interview'
-                                  )}
-                                </button>
-                              )}
-                              <button
-                                onClick={() => handleDeleteInterview(intv._id, intv.student?.name)}
-                                className="inline-flex items-center justify-center px-2 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-500 hover:text-white rounded-md shadow-sm transition-colors cursor-pointer"
-                                title="Delete"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </>
-              )}
+                );
+              })}
             </div>
           )}
         </div>
-      </div>
+      ) : (
+        /* View 2: When a programme is clicked -> Hide all other cards, show only this programme's details with Back button */
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 min-h-[400px] space-y-4">
+          {/* Header Bar with Back Button & Action Controls */}
+          <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 rounded-xl flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+            <div className="flex items-center gap-3 flex-wrap">
+              <button
+                onClick={() => { setActiveProgramme(null); setSearchTerm(""); }}
+                className="inline-flex items-center space-x-1.5 px-3.5 py-2 bg-white hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
+                title="Go back to all programmes"
+              >
+                <ArrowLeft className="w-4 h-4 text-primary" />
+                <span>Back</span>
+              </button>
+              <div className="h-6 w-[1px] bg-gray-200 dark:bg-gray-700 hidden sm:block" />
+              <div>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <span>{activeProgramme}</span>
+                  <span className="text-xs bg-primary/10 text-primary dark:text-indigo-300 font-bold px-2.5 py-0.5 rounded-full">
+                    {currentProgrammeInterviews.length} students
+                  </span>
+                </h2>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={() => setShowTemplateModal(true)}
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                title="Configure Form Template"
+              >
+                <Settings className="w-3.5 h-3.5" />
+                <span>Template</span>
+              </button>
+              <button
+                onClick={() => handleCopyForGoogleSheet(activeProgramme)}
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                title={`Copy ${activeProgramme} data for Google Sheet`}
+              >
+                <Copy className="w-3.5 h-3.5" />
+                <span>Copy for Google Sheet</span>
+              </button>
+              <button
+                onClick={() => handleDownloadSheet(activeProgramme)}
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-green-50 text-green-600 hover:bg-green-600 hover:text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                title={`Download ${activeProgramme} as CSV`}
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Download</span>
+              </button>
+              <button
+                onClick={() => handleDeleteCourse(activeProgramme)}
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                title={`Delete all students in ${activeProgramme}`}
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Delete List</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Search bar inside this active programme */}
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between pt-1">
+            <div className="relative w-full sm:max-w-md">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input 
+                type="text" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search students by name, email, slot, status..." 
+                className="pl-10 pr-4 py-2 w-full border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900 text-sm focus:ring-2 focus:ring-primary focus:outline-none transition-all"
+              />
+            </div>
+            {searchTerm && (
+              <span className="text-xs text-gray-500">
+                Found {filteredStudents.length} of {currentProgrammeInterviews.length} students
+              </span>
+            )}
+          </div>
+
+          {/* Student Table */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
+              <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-300 uppercase text-xs font-bold whitespace-nowrap">
+                <tr>
+                  <th className="px-6 py-4">Name</th>
+                  <th className="px-6 py-4">Email</th>
+                  <th className="px-6 py-4">Phone</th>
+                  <th className="px-6 py-4">Slot</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4 min-w-[300px]">Feedback Summary</th>
+                  <th className="px-6 py-4 sticky right-0 bg-gray-50 dark:bg-gray-900/50 z-10 border-l dark:border-gray-700 shadow-sm">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                {filteredStudents.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-10 text-gray-400 italic">
+                      {searchTerm ? `No students found matching "${searchTerm}".` : "No students in this programme."}
+                    </td>
+                  </tr>
+                ) : (
+                  filteredStudents.map((intv) => (
+                    <tr key={intv._id} className="border-b last:border-0 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                      <td className="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                        <div className="flex flex-col gap-1">
+                          <span>{intv.student?.name}</span>
+                          {intv.student?.metadata && Object.keys(intv.student.metadata).length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {Object.entries(intv.student.metadata).map(([k, v]) => (
+                                <span key={k} className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                  {k}: {v}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">{intv.student?.email}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{intv.student?.phone || 'N/A'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {intv.student?.slot ? intv.student.slot : 
+                         (intv.batch && intv.batch !== 'N/A') ? intv.batch : 
+                         (intv.student?.batch && intv.student?.batch !== 'N/A') ? intv.student.batch : 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {intv.status === 'Completed' ? (
+                          <span className="flex items-center gap-1 text-green-600 font-bold text-xs bg-green-100 px-2 py-1 rounded-md w-max">
+                            <CheckCircle2 className="w-3.5 h-3.5" /> Completed
+                          </span>
+                        ) : (
+                          <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-md text-xs font-bold w-max block">
+                            {intv.status}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-normal text-xs min-w-[300px] align-top">
+                        {intv.status === 'Completed' && intv.feedback ? (
+                          <div className="flex flex-col gap-2 p-3 bg-white dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm">
+                            <div className="grid grid-cols-[100px_1fr] gap-1 border-b border-dashed pb-1.5 border-gray-100 dark:border-gray-800">
+                              <span className="font-semibold text-gray-500">Interpersonal:</span>
+                              <span className="font-medium">{intv.feedback.interpersonalLevel || 'N/A'}</span>
+                            </div>
+                            
+                            <div className="grid grid-cols-[100px_1fr] gap-1 border-b border-dashed pb-1.5 border-gray-100 dark:border-gray-800">
+                              <span className="font-semibold text-gray-500">Language:</span>
+                              <span className="text-[11px]">
+                                {intv.feedback.bengaliLevel || intv.feedback.englishLevel 
+                                  ? `${intv.feedback.bengaliLevel ? 'BN: ' + intv.feedback.bengaliLevel : ''} ${intv.feedback.englishLevel ? '| EN: ' + intv.feedback.englishLevel : ''}`
+                                  : 'N/A'}
+                              </span>
+                            </div>
+
+                            <div className="grid grid-cols-[100px_1fr] gap-1 border-b border-dashed pb-1.5 border-gray-100 dark:border-gray-800">
+                              <span className="font-semibold text-gray-500">Camera:</span>
+                              <span className="text-[11px]">{intv.feedback.cameraOn ? `On (Eye: ${intv.feedback.eyeContact || '-'}, BG: ${intv.feedback.backgroundLevel || '-'})` : 'Off'}</span>
+                            </div>
+
+                            <div className="grid grid-cols-[100px_1fr] gap-1 border-b border-dashed pb-1.5 border-gray-100 dark:border-gray-800">
+                              <span className="font-semibold text-gray-500">Technical:</span>
+                              <div className="flex flex-col gap-1.5">
+                                {(() => {
+                                  const solved = [];
+                                  const partially = [];
+                                  const failed = [];
+                                  
+                                  const catMap = {
+                                    htmlcss: 'HTML & CSS',
+                                    jsts: 'JS & TS',
+                                    reactnext: 'React & Next',
+                                    nodeexpress: 'Node & Express',
+                                    mongodb: 'MongoDB'
+                                  };
+
+                                  if (intv.feedback.technicalEvaluation) {
+                                    Object.entries(intv.feedback.technicalEvaluation).forEach(([catId, cat]) => {
+                                      const label = catMap[catId] || catId.toUpperCase();
+                                      if (cat && cat.topics) {
+                                        cat.topics.forEach(t => {
+                                          const qItem = { name: t.name, label };
+                                          if (t.status === 'pass' || t.status === 'solved') solved.push(qItem);
+                                          else if (t.status === 'partially_solved') partially.push(qItem);
+                                          else if (t.status === 'fail' || t.status === 'cant_solve') failed.push(qItem);
+                                        });
+                                      }
+                                    });
+                                  }
+                                  
+                                  const hasTech = solved.length > 0 || partially.length > 0 || failed.length > 0;
+                                  
+                                  if (!hasTech) return <span className="text-gray-400 italic">None</span>;
+
+                                  return (
+                                    <>
+                                      {solved.map((q, i) => (
+                                        <div key={`s-${i}`} className="flex items-start gap-1 text-[10px] font-medium bg-green-50/70 text-green-800 dark:bg-green-900/20 dark:text-green-300 px-1.5 py-1 rounded border border-green-100 dark:border-green-800/30 leading-snug break-words">
+                                          <span className="mt-[1px] text-green-600">✓</span>
+                                          <span className="shrink-0 font-bold bg-white dark:bg-gray-800 text-green-700 dark:text-green-400 px-1 rounded-sm border border-green-200 dark:border-green-800">{q.label}</span>
+                                          <span>{q.name}</span>
+                                        </div>
+                                      ))}
+                                      {partially.map((q, i) => (
+                                        <div key={`p-${i}`} className="flex items-start gap-1 text-[10px] font-medium bg-orange-50/70 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300 px-1.5 py-1 rounded border border-orange-100 dark:border-orange-800/30 leading-snug break-words">
+                                          <span className="mt-[1px] text-orange-600">~</span>
+                                          <span className="shrink-0 font-bold bg-white dark:bg-gray-800 text-orange-700 dark:text-orange-400 px-1 rounded-sm border border-orange-200 dark:border-orange-800">{q.label}</span>
+                                          <span>{q.name}</span>
+                                        </div>
+                                      ))}
+                                      {failed.map((q, i) => (
+                                        <div key={`f-${i}`} className="flex items-start gap-1 text-[10px] font-medium bg-red-50/70 text-red-800 dark:bg-red-900/20 dark:text-red-300 px-1.5 py-1 rounded border border-red-100 dark:border-red-800/30 leading-snug break-words">
+                                          <span className="mt-[1px] text-red-600">✗</span>
+                                          <span className="shrink-0 font-bold bg-white dark:bg-gray-800 text-red-700 dark:text-red-400 px-1 rounded-sm border border-red-200 dark:border-red-800">{q.label}</span>
+                                          <span>{q.name}</span>
+                                        </div>
+                                      ))}
+                                    </>
+                                  );
+                                })()}
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-[100px_1fr] gap-1 border-b border-dashed pb-1.5 border-gray-100 dark:border-gray-800">
+                              <span className="font-semibold text-gray-500">Prob Solving:</span>
+                              <span className="capitalize font-medium">{intv.feedback.problemSolvingLevel ? intv.feedback.problemSolvingLevel.replace("_", " ") : 'N/A'}</span>
+                            </div>
+
+                            <div className="grid grid-cols-[100px_1fr] gap-1">
+                              <span className="font-semibold text-gray-500">Final Rec.:</span>
+                              <div className="flex flex-col">
+                                <span className={`font-bold ${
+                                  intv.feedback.finalRecommendation === 'Strongly Recommended (Potential Candidate)' ? 'text-green-600' :
+                                  intv.feedback.finalRecommendation === 'Recommended' ? 'text-primary' :
+                                  intv.feedback.finalRecommendation === 'Need Improvement' ? 'text-orange-500' :
+                                  intv.feedback.finalRecommendation === 'Not Recommended' ? 'text-red-500' : ''
+                                }}`}>{intv.feedback.finalRecommendation || 'N/A'}</span>
+                                {intv.feedback.finalComment && (
+                                  <span className="text-[10px] italic text-gray-400 mt-1 line-clamp-2" title={intv.feedback.finalComment}>&quot;{intv.feedback.finalComment}&quot;</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-gray-300 dark:text-gray-600">-</span>
+                        )}
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap sticky right-0 bg-white dark:bg-gray-800 z-10 border-l dark:border-gray-700 shadow-sm flex items-center gap-2">
+                        {intv.status === 'Completed' ? (
+                          <Link 
+                            href={`/dashboard/feedbacks/${intv._id}`} 
+                            className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-bold text-white bg-green-600 hover:bg-green-700 rounded-md shadow-sm transition-colors cursor-pointer"
+                          >
+                            View Feedback
+                          </Link>
+                        ) : (
+                          <button 
+                            onClick={() => handleStartInterview(intv.student._id, intv._id, intv.status)}
+                            disabled={startingInterviewId === intv._id}
+                            className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-bold text-white bg-primary hover:bg-primary-hover rounded-md shadow-sm transition-colors cursor-pointer disabled:opacity-70"
+                          >
+                            {startingInterviewId === intv._id ? (
+                              <span className="flex items-center gap-1">
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                Loading...
+                              </span>
+                            ) : (
+                              intv.status === 'Assigned' ? 'Start Interview' : 'Continue Interview'
+                            )}
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleDeleteInterview(intv._id, intv.student?.name)}
+                          className="inline-flex items-center justify-center px-2 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-500 hover:text-white rounded-md shadow-sm transition-colors cursor-pointer"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
       
       {showTemplateModal && activeProgramme && (
         <CourseTemplateModal 
