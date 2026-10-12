@@ -105,7 +105,7 @@ function ManagerDashboard() {
 
       {/* Top Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="Total Interviews" value={data?.totalInterviews || 0} subtitle="All recorded interviews" icon={<ClipboardList className="w-6 h-6 text-purple-500" />} iconBg="bg-purple-100 dark:bg-purple-500/20" />
+        <StatCard title="Total Interviews" value={data?.totalInterviews || 0} subtitle="All recorded interviews" icon={<ClipboardList className="w-6 h-6 text-primary" />} iconBg="bg-indigo-100 dark:bg-indigo-500/20" />
         <StatCard title="Total Students" value={totalStudents} subtitle="In the system" icon={<Users className="w-6 h-6 text-blue-500" />} iconBg="bg-blue-100 dark:bg-blue-500/20" />
         <StatCard title="Completed" value={completedCount} subtitle="Final feedback submitted" icon={<CheckCircle className="w-6 h-6 text-green-500" />} iconBg="bg-green-100 dark:bg-green-500/20" />
         <div className="bg-gradient-to-br from-red-500 to-orange-500 rounded-2xl p-6 text-white shadow-xl flex flex-col justify-between h-40">
@@ -144,7 +144,7 @@ function ManagerDashboard() {
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col">
           <div className="flex items-center space-x-3 mb-6">
-            <div className="w-8 h-8 bg-purple-100 dark:bg-purple-500/20 text-purple-600 flex items-center justify-center rounded-full">
+            <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-500/20 text-primary flex items-center justify-center rounded-full">
               <PieChart className="w-4 h-4" />
             </div>
             <div>
@@ -280,8 +280,8 @@ function InstructorDashboard() {
           title="My Drafts" 
           value={data?.myDrafts || 0} 
           subtitle="Feedback needing completion" 
-          icon={<Edit3 className="w-6 h-6 text-purple-500" />} 
-          iconBg="bg-purple-100 dark:bg-purple-500/20" 
+          icon={<Edit3 className="w-6 h-6 text-primary" />} 
+          iconBg="bg-indigo-100 dark:bg-indigo-500/20" 
           onClick={() => router.push('/dashboard/interviews')}
         />
         <StatCard 
@@ -398,7 +398,7 @@ function ActivityRow({ avatar, name, action, date, badge, onClick }) {
   return (
     <div onClick={onClick} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors">
       <div className="flex items-center space-x-4">
-        <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-bold flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-950/50 text-primary dark:text-indigo-300 font-bold flex items-center justify-center">
           {avatar}
         </div>
         <div>
@@ -408,7 +408,7 @@ function ActivityRow({ avatar, name, action, date, badge, onClick }) {
           <p className="text-xs text-gray-500">{date}</p>
         </div>
       </div>
-      <div className="px-3 py-1 bg-purple-50 dark:bg-purple-500/10 hover:bg-purple-100 dark:hover:bg-purple-500/20 text-purple-600 text-xs font-bold rounded-md transition-colors">
+      <div className="px-3 py-1 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-primary text-xs font-bold rounded-md transition-colors">
         {badge}
       </div>
     </div>

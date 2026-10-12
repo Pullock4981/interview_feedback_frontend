@@ -1,35 +1,70 @@
 @import "tailwindcss";
 
-@import "tailwindcss";
-
 @theme {
-  --color-primary: #5c2d91;
-  --color-primary-hover: #4a2474;
-  --color-primary-light: #f3e8ff;
-  --color-secondary: #7b2cbf;
-  --color-sidebar: #5c2d91;
-  --color-card-bg: #ffffff;
-  --color-card-bg-dark: #1f2937;
-  --color-background-main: #f8fafc;
-  --color-background-main-dark: #111827;
-  --color-text-main: #374151;
-  --color-text-main-dark: #e5e7eb;
+  /* 1. Primary Color (Electric Indigo — Brand & Accent) */
+  --color-primary: #4F46E5;
+  --color-primary-hover: #4338CA;
+  --color-primary-brand: #6366F1;
+  --color-primary-light: #EEF2FF;
+  --color-primary-glow: rgba(79, 70, 229, 0.25);
+
+  /* 2. Secondary Color (Midnight Slate / Deep Charcoal — Structure & Dark Surface) */
+  --color-secondary: #090D16;
+  --color-secondary-surface: #0E1422;
+  --color-sidebar: #0E1422;
+  --color-heading: #0F172A;
+
+  /* 3. Tertiary Color (Canvas & Clean Contrast — Pure White & Soft Snow) */
+  --color-card-bg: #FFFFFF;
+  --color-card-bg-dark: #0E1422;
+  --color-background-main: #F8FAFC;
+  --color-background-main-dark: #090D16;
+  --color-text-main: #0F172A;
+  --color-text-main-dark: #FFFFFF;
+
+  /* Palette mappings to ensure existing components adapt to the 3-color design system */
+  --color-gray-950: #05070D;
+  --color-gray-900: #090D16;
+  --color-gray-800: #0E1422;
+  --color-gray-700: #1A2338;
+  --color-gray-600: #475569;
+  --color-gray-500: #64748B;
+  --color-gray-400: #94A3B8;
+  --color-gray-300: #CBD5E1;
+  --color-gray-200: #E2E8F0;
+  --color-gray-100: #F1F5F9;
+  --color-gray-50: #F8FAFC;
 }
 
 :root {
-  --background: var(--color-background-main);
-  --foreground: var(--color-text-main);
-  --sidebar-bg: var(--color-sidebar);
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  --sidebar-bg: #0E1422;
+  --card-bg: #FFFFFF;
 }
 
 .dark {
-  --background: var(--color-background-main-dark);
-  --foreground: var(--color-text-main-dark);
-  --sidebar-bg: #1e1b4b; /* Darker purple for dark mode sidebar */
+  --background: #090D16;
+  --foreground: #FFFFFF;
+  --sidebar-bg: #090D16;
+  --card-bg: #0E1422;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* SweetAlert2 Theme Harmonization */
+.swal2-popup {
+  border-radius: 1rem !important;
+  font-family: inherit !important;
+}
+.swal2-confirm {
+  background-color: #4F46E5 !important;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3) !important;
+}
+.swal2-confirm:hover {
+  background-color: #4338CA !important;
 }

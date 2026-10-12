@@ -72,17 +72,17 @@ export default function StudentsPage() {
           </div>
 
           <!-- Specific Tab Selector Section -->
-          <div class="p-3 bg-purple-50/70 border border-purple-200 rounded-lg">
+          <div class="p-3 bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-800/40 rounded-lg">
             <div class="flex items-center justify-between mb-1.5">
-              <label class="block text-xs font-bold text-purple-900">
+              <label class="block text-xs font-bold text-primary dark:text-indigo-300">
                 Specific Sheet Tab <span class="text-gray-500 font-normal">(নির্দিষ্ট ট্যাব ফিল্টার)</span>
               </label>
-              <span id="swal-tab-status" class="text-[11px] font-semibold text-purple-700"></span>
+              <span id="swal-tab-status" class="text-[11px] font-semibold text-primary dark:text-indigo-300"></span>
             </div>
             
             <div id="swal-tab-select-container" style="display: none;" class="mb-2">
               <label class="block text-[11px] text-gray-600 mb-1 font-medium">Select Tab from Sheet:</label>
-              <select id="swal-input-tab-select" class="swal2-select !m-0 !w-full !text-xs !p-2 !border-purple-300 !rounded-md !bg-white">
+              <select id="swal-input-tab-select" class="swal2-select !m-0 !w-full !text-xs !p-2 !border-indigo-300 dark:!border-indigo-700 !rounded-md !bg-white dark:!bg-gray-800">
                 <option value="">-- Choose Tab from Dropdown --</option>
               </select>
             </div>
@@ -117,7 +117,7 @@ export default function StudentsPage() {
       `,
       focusConfirm: false,
       showCancelButton: true,
-      confirmButtonColor: '#5c2d91',
+      confirmButtonColor: '#4F46E5',
       confirmButtonText: 'Create Interviews',
       showLoaderOnConfirm: true,
       didOpen: () => {
@@ -149,7 +149,7 @@ export default function StudentsPage() {
             const sheetId = sheetMatch[1];
             if (sheetId !== lastCheckedId) {
               lastCheckedId = sheetId;
-              if (tabStatus && !gidMatch) tabStatus.innerHTML = `<span class="text-purple-600">🔍 Fetching tabs...</span>`;
+              if (tabStatus && !gidMatch) tabStatus.innerHTML = `<span class="text-primary animate-pulse">🔍 Fetching tabs...</span>`;
               try {
                 const editRes = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/edit`);
                 if (editRes.ok) {

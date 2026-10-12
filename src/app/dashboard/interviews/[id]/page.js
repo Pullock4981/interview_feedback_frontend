@@ -371,7 +371,7 @@ export default function InterviewFeedback() {
       inputPlaceholder: 'Enter question text...',
       showCancelButton: true,
       confirmButtonText: 'Add',
-      confirmButtonColor: '#5c2d91',
+      confirmButtonColor: '#4F46E5',
     });
 
     if (qText && qText.trim()) {
@@ -488,8 +488,8 @@ export default function InterviewFeedback() {
         ${formatList(partiallyList, '#ea580c', 'Partially Solved', '🟠')}
         ${formatList(cantSolveList, '#dc2626', "Can't Solve", '🔴')}
 
-        <div style="margin-top: 12px; padding: 10px; background: rgba(92, 45, 145, 0.06); border: 1px solid rgba(92, 45, 145, 0.2); border-radius: 6px;">
-          <p style="font-size: 12px; font-weight: bold; color: #5c2d91; margin-bottom: 4px;">General Feedback (Created from status):</p>
+        <div style="margin-top: 12px; padding: 10px; background: rgba(79, 70, 229, 0.06); border: 1px solid rgba(79, 70, 229, 0.2); border-radius: 6px;">
+          <p style="font-size: 12px; font-weight: bold; color: #4F46E5; margin-bottom: 4px;">General Feedback (Created from status):</p>
           <p style="font-size: 12px; color: #333; margin: 0; line-height: 1.4;">${finalCommentToSend}</p>
         </div>
 
@@ -508,7 +508,7 @@ export default function InterviewFeedback() {
         
         <hr style="margin: 15px 0; border: 0; border-top: 1px solid rgba(0,0,0,0.1);" />
         
-        <p style="font-size: 16px;"><strong>Final Recommendation:</strong> <span style="color: #5c2d91;">${finalRecommendation}</span></p>
+        <p style="font-size: 16px;"><strong>Final Recommendation:</strong> <span style="color: #4F46E5;">${finalRecommendation}</span></p>
       </div>
       <p style="margin-top: 15px; font-size: 13px; color: #666;">You won't be able to edit this after submitting!</p>
     `;
@@ -519,7 +519,7 @@ export default function InterviewFeedback() {
       icon: 'info',
       width: '650px',
       showCancelButton: true,
-      confirmButtonColor: '#5c2d91',
+      confirmButtonColor: '#4F46E5',
       cancelButtonColor: '#ef4444',
       confirmButtonText: 'Yes, submit it!',
       showLoaderOnConfirm: true,
@@ -1060,7 +1060,7 @@ export default function InterviewFeedback() {
                 <button 
                   type="button" 
                   onClick={handleSyncFromTemplate} 
-                  className="px-2.5 py-1 text-xs bg-purple-600/10 hover:bg-purple-600/20 text-purple-700 dark:text-purple-300 rounded font-bold cursor-pointer transition-colors flex items-center gap-1.5 shadow-xs"
+                  className="px-2.5 py-1 text-xs bg-primary/10 hover:bg-primary/20 text-primary dark:text-indigo-400 rounded font-bold cursor-pointer transition-colors flex items-center gap-1.5 shadow-xs"
                   title="Reload or sync questions from the course template"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
@@ -1124,7 +1124,7 @@ export default function InterviewFeedback() {
                   <div className="flex justify-between items-center border-b border-gray-200/60 dark:border-gray-700/60 pb-2">
                     <div className="flex items-center gap-2 flex-wrap">
                       <label className="font-bold text-sm text-gray-900 dark:text-gray-100">{cat.label}</label>
-                      <span className="text-[11px] font-semibold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-900/30 px-2 py-0.5 rounded-full border border-purple-200/50 dark:border-purple-800/50">
+                      <span className="text-[11px] font-semibold text-primary dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded-full border border-indigo-200/50 dark:border-indigo-800/50">
                         {catData.topics.length > 0 ? `${evaluatedCount} / ${catData.topics.length} evaluated` : `${availableSuggestions.length} questions in template`}
                       </span>
                     </div>

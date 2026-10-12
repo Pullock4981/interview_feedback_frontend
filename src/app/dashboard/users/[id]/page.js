@@ -104,7 +104,7 @@ export default function InstructorDetailsPage({ params }) {
 
       {/* Profile Card */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 flex flex-col md:flex-row gap-8 items-center md:items-start transition-all hover:shadow-md">
-        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center flex-shrink-0 border border-primary/10 shadow-inner text-4xl text-primary font-bold">
+        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 to-indigo-500/20 flex items-center justify-center flex-shrink-0 border border-primary/10 shadow-inner text-4xl text-primary font-bold">
           {instructor.name.charAt(0).toUpperCase()}
         </div>
         <div className="flex-1 text-center md:text-left pt-2">

@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -24,16 +23,9 @@ export function Sidebar() {
 
   return (
     <aside className="w-64 bg-sidebar text-white flex flex-col h-full transition-colors duration-300">
-      {/* Logo Area */}
-      <div className="py-6 flex flex-col items-center justify-center border-b border-white/10">
-        <Image 
-          src="/assats/Screenshot%202026-08-08%20235637.png" 
-          alt="NexView Logo" 
-          width={64} 
-          height={64} 
-          className="mb-3 object-contain drop-shadow-md rounded-xl" 
-        />
-        <span className="text-xl font-bold tracking-wide">NexView</span>
+      {/* Brand Title Area */}
+      <div className="py-6 px-6 flex items-center justify-center border-b border-white/10">
+        <span className="text-xl font-bold tracking-wider text-white">NexView</span>
       </div>
 
       {/* Navigation */}
@@ -49,11 +41,11 @@ export function Sidebar() {
               href={item.href}
               className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
                 isActive
-                  ? "bg-white text-primary font-semibold shadow-md"
-                  : "text-white/80 hover:bg-white/10 hover:text-white"
+                  ? "bg-primary text-white font-semibold shadow-md shadow-primary/30"
+                  : "text-gray-300 hover:bg-white/10 hover:text-white"
               }`}
             >
-              <Icon className={`w-5 h-5 ${isActive ? "text-primary" : "text-white/70"}`} />
+              <Icon className={`w-5 h-5 ${isActive ? "text-white" : "text-gray-400"}`} />
               <span>{item.name}</span>
             </Link>
           );
